@@ -1,22 +1,180 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".ui.home.HomeFragment">
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:tools="http://schemas.android.com/tools"
+            android:layout_height="match_parent"
+            android:layout_width="match_parent"
+            android:fillViewport="true">
+    <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:context=".ui.home.HomeFragment">
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:id="@+id/m_cache_header"
+                android:text=" Direct Mapped Cache "
+                app:layout_constraintTop_toTopOf="parent" app:layout_constraintStart_toStartOf="parent"
+                android:layout_marginTop="16dp" android:layout_marginStart="128dp"/>
+        <RadioGroup
+                android:layout_width="match_parent"
+                android:layout_height="41dp"
+                app:layout_constraintTop_toBottomOf="@+id/m_cache_header"
+                android:layout_marginTop="32dp" app:layout_constraintStart_toStartOf="parent"
+                android:layout_marginStart="8dp"
+                android:orientation="horizontal" android:id="@+id/radioGroup2">
+            <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:id="@+id/write_back" android:text="@string/write_back" android:checked="true">
 
-    <TextView
-        android:id="@+id/text_home"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:textAlignment="center"
-        android:textSize="20sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+            </RadioButton>
+            <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:id="@+id/write_through"
+                    android:text="@string/write_through"/>
+        </RadioGroup>
+        <RadioGroup
+                android:layout_width="match_parent"
+                android:layout_height="41dp"
+                app:layout_constraintTop_toBottomOf="@+id/radioGroup2"
+                android:orientation="horizontal"
+                tools:layout_editor_absoluteX="0dp"
+                android:layout_marginTop="28dp"
+                android:id="@+id/radioGroup3">
+            <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:id="@+id/write_on_allocate"
+                    android:text="@string/write_on_allocate" android:checked="true"/>
+            <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:id="@+id/write_around" android:text="@string/write_around">
+            </RadioButton>
+        </RadioGroup>
+        <TextView
+                android:layout_width="185dp"
+                android:layout_height="38dp" android:id="@+id/textView3"
+                app:layout_constraintStart_toStartOf="parent"
+                android:layout_marginStart="28dp" android:text=" Cache Size (power of 2) "
+                app:layout_constraintTop_toBottomOf="@+id/radioGroup3" android:layout_marginTop="24dp"/>
+        <TextView
+                android:text=" Memory Size (power of 2)"
+                android:layout_width="176dp"
+                android:layout_height="33dp" android:id="@+id/textView4"
+                app:layout_constraintTop_toBottomOf="@+id/textView3"
+                android:layout_marginTop="28dp" app:layout_constraintStart_toStartOf="parent"
+                android:layout_marginStart="28dp"/>
+        <TextView
+                android:text=" Offset Bits "
+                android:layout_width="174dp"
+                android:layout_height="33dp" android:id="@+id/textView5"
+                app:layout_constraintStart_toStartOf="parent"
+                android:layout_marginStart="28dp"
+                app:layout_constraintTop_toBottomOf="@+id/textView4" android:layout_marginTop="32dp"/>
+        <EditText
+                android:layout_width="100dp"
+                android:layout_height="43dp"
+                android:inputType="number"
+                android:text="16"
+                android:ems="10"
+                android:id="@+id/m_btn_c_input_size"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginEnd="52dp" app:layout_constraintTop_toBottomOf="@+id/radioGroup3"
+                android:layout_marginTop="24dp"/>
+        <EditText
+                android:layout_width="105dp"
+                android:layout_height="39dp"
+                android:inputType="number"
+                android:text="2048"
+                android:ems="10"
+                android:id="@+id/m_c_memory_size"
+                app:layout_constraintTop_toBottomOf="@+id/m_btn_c_input_size"
+                android:layout_marginTop="20dp" app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginEnd="52dp"/>
+        <EditText
+                android:layout_width="102dp"
+                android:layout_height="41dp"
+                android:inputType="number"
+                android:text="2"
+                android:ems="10"
+                android:id="@+id/m_c_offset_bits"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginEnd="52dp" app:layout_constraintTop_toBottomOf="@+id/m_c_memory_size"
+                android:layout_marginTop="20dp"/>
+        <!--<ScrollView
+                android:layout_width="410dp"
+                android:layout_height="72dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/m_c_random_btn" android:layout_marginTop="44dp">
+            <TableLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintTop_toBottomOf="@+id/textView8" android:layout_marginTop="12dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    android:stretchColumns="*">
+            </TableLayout>
+        </ScrollView>-->
+        <Spinner
+                android:layout_width="130dp"
+                android:layout_height="30dp" android:id="@+id/m_c_instruction_type"
+                app:layout_constraintTop_toBottomOf="@+id/textView5" android:layout_marginTop="84dp"
+                app:layout_constraintStart_toStartOf="parent" android:layout_marginStart="28dp"/>
+        <EditText
+                android:layout_width="120dp"
+                android:layout_height="43dp"
+                android:inputType="number"
+                android:ems="10"
+                android:id="@+id/m_c_address"
+                app:layout_constraintStart_toStartOf="parent"
+                android:layout_marginStart="252dp"
+                app:layout_constraintTop_toBottomOf="@+id/m_btn_c_design_submit" android:layout_marginTop="16dp"/>
+        <Button
+                android:text="submit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:id="@+id/m_cache_submit_button"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginEnd="52dp" app:layout_constraintTop_toBottomOf="@+id/m_c_address"
+                android:layout_marginTop="16dp"/>
+        <Button
+                android:text="get random"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:id="@+id/m_c_random_btn"
+                app:layout_constraintStart_toStartOf="parent"
+                android:layout_marginStart="28dp" app:layout_constraintTop_toBottomOf="@+id/m_c_instruction_type"
+                android:layout_marginTop="16dp"/>
+        <Button
+                android:text="Reset"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:id="@+id/m_btn_c_reset"
+                app:layout_constraintTop_toBottomOf="@+id/textView5" android:layout_marginTop="16dp"
+                app:layout_constraintStart_toStartOf="parent" android:layout_marginStart="28dp"/>
+        <Button
+                android:text="Button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:id="@+id/m_btn_c_design_submit"
+                app:layout_constraintTop_toBottomOf="@+id/m_c_offset_bits" android:layout_marginTop="8dp"
+                app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="52dp"/>
+        <TextView
+                android:text="TextView"
+                android:layout_width="383dp"
+                android:layout_height="71dp" android:id="@+id/textView2"
+                app:layout_constraintTop_toBottomOf="@+id/m_c_random_btn"
+                app:layout_constraintStart_toStartOf="parent" android:layout_marginTop="8dp"
+                android:layout_marginStart="16dp"/>
+        <Button
+                android:text="Next"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:id="@+id/m_btn_c_next_move"
+                app:layout_constraintTop_toBottomOf="@+id/textView2" app:layout_constraintStart_toStartOf="parent"
+                android:layout_marginTop="12dp" android:layout_marginStart="16dp"/>
+        <Button
+                android:text="Fast forward"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:id="@+id/m_btn_c_fast_forward"
+                app:layout_constraintTop_toBottomOf="@+id/textView2" app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginTop="12dp" android:layout_marginEnd="12dp"/>
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>
