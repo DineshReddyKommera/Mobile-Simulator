@@ -3,7 +3,6 @@ package com.example.cacheandvirtualmemorysimulator.ui.home;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
-import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,7 +15,6 @@ import androidx.fragment.app.Fragment;
 import com.example.cacheandvirtualmemorysimulator.POJO.CacheRecord;
 import com.example.cacheandvirtualmemorysimulator.R;
 
-import java.math.BigDecimal;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -50,6 +48,15 @@ public class HomeFragment extends Fragment {
     int cacheBitSize;
     int indexBitSize;
     int memoryBitSize;
+    int addressInstruction;
+    String currentTagBinary;
+    String currentIndexBinary;
+    String currentOffsetBinary;
+    String currentBlockBinary;
+    int currentBlockDecimal;
+    int currentIndexDecimal;
+    String currentBlockHex;
+
     CacheRecord[] cacheTable;
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -118,170 +125,7 @@ public class HomeFragment extends Fragment {
                     for(int i=0;i<Math.pow(2,indexBitSize);i++){
                         cacheTable[i] = new CacheRecord(i,false,"-","0",false);
                     }
-                    mTableLayout.removeAllViews();
-                    TextView textSpacer = null;
-                    int leftRowMargin=0;
-                    int topRowMargin=0;
-                    int rightRowMargin=0;
-                    int bottomRowMargin = 0;
-                    for(int i = -1; i<Math.pow(2,indexBitSize); i ++) {
-                        CacheRecord cacheRecord = null;
-                        if (i > -1)
-                            cacheRecord = cacheTable[i];
-                        else {
-                            textSpacer = new TextView(getContext());
-                            textSpacer.setText("");
-                        }
-                        // data columns
-                        final TextView tv = new TextView(getContext());
-                        tv.setLayoutParams(new
-                                TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT,
-                                TableRow.LayoutParams.WRAP_CONTENT));
-                        tv.setGravity(Gravity.LEFT);
-                        tv.setPadding(5, 15, 0, 15);
-                        if (i == -1) {
-                            tv.setText("Index#");
-                            tv.setBackgroundColor(Color.parseColor("#f0f0f0"));
-                        }
-                        else {
-                            tv.setBackgroundColor(Color.parseColor("#f8f8f8"));
-                            tv.setText(String.valueOf(cacheRecord.getIndex()));
-                        }
-                        //tv.setTextSize(TypedValue.COMPLEX_UNIT_PX);
-                        final TextView tv2 = new TextView(getContext());
-                        if (i == -1) {
-                            tv2.setLayoutParams(new
-                                    TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT,
-                                    TableRow.LayoutParams.WRAP_CONTENT));
-                        }
-                        else {
-                            tv2.setLayoutParams(new
-                                    TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT,
-                                    TableRow.LayoutParams.MATCH_PARENT));
-                        }
-                        tv2.setGravity(Gravity.LEFT);
-                        tv2.setPadding(5, 15, 0, 15);
-                        if (i == -1) {
-                            tv2.setText("Valid");
-                            tv2.setBackgroundColor(Color.parseColor("#f7f7f7"));
-                        }
-                        else {
-                            tv2.setBackgroundColor(Color.parseColor("#ffffff"));
-                            tv2.setTextColor(Color.parseColor("#000000"));
-                            tv2.setText(String.valueOf(cacheRecord.isValid()?1:0));
-                        }
-                        final TextView tv3 = new TextView(getContext());
-                        if (i == -1) {
-                            tv3.setLayoutParams(new
-                                    TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT,
-                                    TableRow.LayoutParams.WRAP_CONTENT));
-                        }
-                        else {
-                            tv3.setLayoutParams(new
-                                    TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT,
-                                    TableRow.LayoutParams.MATCH_PARENT));
-                        }
-                        tv3.setGravity(Gravity.LEFT);
-                        tv3.setPadding(5, 15, 0, 15);
-                        if (i == -1) {
-                            tv3.setText("Tag");
-                            tv3.setBackgroundColor(Color.parseColor("#f7f7f7"));
-                        }
-                        else {
-                            tv3.setBackgroundColor(Color.parseColor("#ffffff"));
-                            tv3.setTextColor(Color.parseColor("#000000"));
-                            tv3.setText(cacheRecord.getTag());
-                        }
-
-                        final TextView tv4 = new TextView(getContext());
-                        if (i == -1) {
-                            tv4.setLayoutParams(new
-                                    TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT,
-                                    TableRow.LayoutParams.WRAP_CONTENT));
-                        }
-                        else {
-                            tv4.setLayoutParams(new
-                                    TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT,
-                                    TableRow.LayoutParams.MATCH_PARENT));
-                        }
-                        tv4.setGravity(Gravity.LEFT);
-                        tv4.setPadding(5, 15, 0, 15);
-                        if (i == -1) {
-                            tv4.setText("Data (Hex)");
-                            tv4.setBackgroundColor(Color.parseColor("#f7f7f7"));
-                        }
-                        else {
-                            tv4.setBackgroundColor(Color.parseColor("#ffffff"));
-                            tv4.setTextColor(Color.parseColor("#000000"));
-                            tv4.setText(cacheRecord.getData());
-                        }
-
-                        final TextView tv5 = new TextView(getContext());
-                        if (i == -1) {
-                            tv5.setLayoutParams(new
-                                    TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT,
-                                    TableRow.LayoutParams.WRAP_CONTENT));
-                        }
-                        else {
-                            tv5.setLayoutParams(new
-                                    TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT,
-                                    TableRow.LayoutParams.MATCH_PARENT));
-                        }
-                        tv5.setGravity(Gravity.LEFT);
-                        tv5.setPadding(5, 15, 0, 15);
-                        if (i == -1) {
-                            tv5.setText("Dirty bit");
-                            tv5.setBackgroundColor(Color.parseColor("#f7f7f7"));
-                        }
-                        else {
-                            tv5.setBackgroundColor(Color.parseColor("#ffffff"));
-                            tv5.setTextColor(Color.parseColor("#000000"));
-                            tv5.setText(String.valueOf(cacheRecord.isDirtyBit()?1:0));
-                        }
-                        // add table row
-                        final TableRow tr = new TableRow(getContext());
-                        tr.setId(i + 1);
-                        TableLayout.LayoutParams trParams = new
-                                TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT,
-                                TableLayout.LayoutParams.WRAP_CONTENT);
-                        trParams.setMargins(leftRowMargin, topRowMargin, rightRowMargin,
-                                bottomRowMargin);
-                        tr.setPadding(0,0,0,0);
-                        tr.setLayoutParams(trParams);
-                        tr.addView(tv);
-                        tr.addView(tv2);
-                        tr.addView(tv3);
-                        tr.addView(tv4);
-                        tr.addView(tv5);
-                        if (i > -1) {
-                            tr.setOnClickListener(new View.OnClickListener() {
-                                public void onClick(View v) {
-                                    TableRow tr = (TableRow) v;
-                                }
-                            });
-                        }
-                        mTableLayout.addView(tr, trParams);
-                        if (i > -1) {
-                            // add separator row
-                            final TableRow trSep = new TableRow(getContext());
-                            TableLayout.LayoutParams trParamsSep = new
-                                    TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT,
-                                    TableLayout.LayoutParams.WRAP_CONTENT);
-                            trParamsSep.setMargins(leftRowMargin, topRowMargin,
-                                    rightRowMargin, bottomRowMargin);
-                            trSep.setLayoutParams(trParamsSep);
-                            TextView tvSep = new TextView(getContext());
-                            TableRow.LayoutParams tvSepLay = new
-                                    TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT,
-                                    TableRow.LayoutParams.WRAP_CONTENT);
-                            tvSepLay.span = 4;
-                            tvSep.setLayoutParams(tvSepLay);
-                            tvSep.setBackgroundColor(Color.parseColor("#d9d9d9"));
-                            tvSep.setHeight(1);
-                            trSep.addView(tvSep);
-                            mTableLayout.addView(trSep, trParamsSep);
-                        }
-                    }
+                    updateCacheTable(cacheTable);
                 }
             }
         });
@@ -289,11 +133,189 @@ public class HomeFragment extends Fragment {
         mBtnGetRandom.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                int randomAddress =  (int)(Math.random()*(memorySize)+1);
-                mEdtAddress.setText(Integer.toHexString(randomAddress));
+                addressInstruction =  (int)(Math.random()*(memorySize)+1);
+                mEdtAddress.setText(Integer.toHexString(addressInstruction));
             }
         });
 
+        mBtnInstSubmit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String binaryInstruction = String
+                        .format("%"+ memoryBitSize+"s",Integer.toBinaryString(addressInstruction))
+                        .replace(' ','0');
+                currentTagBinary = binaryInstruction.substring(0,tagBitSize);
+                currentIndexBinary = binaryInstruction.substring(tagBitSize, blockBitSize);
+                currentIndexDecimal = Integer.parseInt(currentIndexBinary,2);
+                currentOffsetBinary = binaryInstruction.substring(blockBitSize);
+
+                currentBlockBinary = binaryInstruction.substring(0,blockBitSize);
+                currentBlockDecimal = Integer.parseInt(currentBlockBinary,2);
+                currentBlockHex = Integer.toHexString(currentBlockDecimal);
+                CacheRecord cacheRecord = new CacheRecord(currentIndexDecimal,true,currentTagBinary
+                        ,"BLOCK "+currentBlockHex.toUpperCase()+" WORD 0 - "+((int)Math.pow(2,indexBitSize)-1),false);
+                cacheTable[currentIndexDecimal] = cacheRecord;
+                updateCacheTable(cacheTable);
+                }
+        });
         return root;
     }
+
+    void updateCacheTable(CacheRecord[] cacheTable){
+            mTableLayout.removeAllViews();
+            TextView textSpacer = null;
+            int leftRowMargin = 0;
+            int topRowMargin = 0;
+            int rightRowMargin = 0;
+            int bottomRowMargin = 0;
+            for (int i = -1; i < Math.pow(2, indexBitSize); i++) {
+                CacheRecord cacheRecord = null;
+                if (i > -1)
+                    cacheRecord = cacheTable[i];
+                else {
+                    textSpacer = new TextView(getContext());
+                    textSpacer.setText("");
+                }
+                // data columns
+                final TextView tv = new TextView(getContext());
+                tv.setLayoutParams(new
+                        TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT,
+                        TableRow.LayoutParams.WRAP_CONTENT));
+                tv.setGravity(Gravity.LEFT);
+                tv.setPadding(5, 15, 0, 15);
+                if (i == -1) {
+                    tv.setText("Index#");
+                    tv.setBackgroundColor(Color.parseColor("#f0f0f0"));
+                } else {
+                    tv.setBackgroundColor(Color.parseColor("#f8f8f8"));
+                    tv.setText(String.valueOf(cacheRecord.getIndex()));
+                }
+                //tv.setTextSize(TypedValue.COMPLEX_UNIT_PX);
+                final TextView tv2 = new TextView(getContext());
+                if (i == -1) {
+                    tv2.setLayoutParams(new
+                            TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT,
+                            TableRow.LayoutParams.WRAP_CONTENT));
+                } else {
+                    tv2.setLayoutParams(new
+                            TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT,
+                            TableRow.LayoutParams.MATCH_PARENT));
+                }
+                tv2.setGravity(Gravity.LEFT);
+                tv2.setPadding(5, 15, 0, 15);
+                if (i == -1) {
+                    tv2.setText("Valid");
+                    tv2.setBackgroundColor(Color.parseColor("#f7f7f7"));
+                } else {
+                    tv2.setBackgroundColor(Color.parseColor("#ffffff"));
+                    tv2.setTextColor(Color.parseColor("#000000"));
+                    tv2.setText(String.valueOf(cacheRecord.isValid() ? 1 : 0));
+                }
+                final TextView tv3 = new TextView(getContext());
+                if (i == -1) {
+                    tv3.setLayoutParams(new
+                            TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT,
+                            TableRow.LayoutParams.WRAP_CONTENT));
+                } else {
+                    tv3.setLayoutParams(new
+                            TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT,
+                            TableRow.LayoutParams.MATCH_PARENT));
+                }
+                tv3.setGravity(Gravity.LEFT);
+                tv3.setPadding(5, 15, 0, 15);
+                if (i == -1) {
+                    tv3.setText("Tag");
+                    tv3.setBackgroundColor(Color.parseColor("#f7f7f7"));
+                } else {
+                    tv3.setBackgroundColor(Color.parseColor("#ffffff"));
+                    tv3.setTextColor(Color.parseColor("#000000"));
+                    tv3.setText(cacheRecord.getTag());
+                }
+
+                final TextView tv4 = new TextView(getContext());
+                if (i == -1) {
+                    tv4.setLayoutParams(new
+                            TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT,
+                            TableRow.LayoutParams.WRAP_CONTENT));
+                } else {
+                    tv4.setLayoutParams(new
+                            TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT,
+                            TableRow.LayoutParams.MATCH_PARENT));
+                }
+                tv4.setGravity(Gravity.LEFT);
+                tv4.setPadding(5, 15, 0, 15);
+                if (i == -1) {
+                    tv4.setText("Data (Hex)");
+                    tv4.setBackgroundColor(Color.parseColor("#f7f7f7"));
+                } else {
+                    tv4.setBackgroundColor(Color.parseColor("#ffffff"));
+                    tv4.setTextColor(Color.parseColor("#000000"));
+                    tv4.setText(cacheRecord.getData());
+                }
+
+                final TextView tv5 = new TextView(getContext());
+                if (i == -1) {
+                    tv5.setLayoutParams(new
+                            TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT,
+                            TableRow.LayoutParams.WRAP_CONTENT));
+                } else {
+                    tv5.setLayoutParams(new
+                            TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT,
+                            TableRow.LayoutParams.MATCH_PARENT));
+                }
+                tv5.setGravity(Gravity.LEFT);
+                tv5.setPadding(5, 15, 0, 15);
+                if (i == -1) {
+                    tv5.setText("Dirty bit");
+                    tv5.setBackgroundColor(Color.parseColor("#f7f7f7"));
+                } else {
+                    tv5.setBackgroundColor(Color.parseColor("#ffffff"));
+                    tv5.setTextColor(Color.parseColor("#000000"));
+                    tv5.setText(String.valueOf(cacheRecord.isDirtyBit() ? 1 : 0));
+                }
+                // add table row
+                final TableRow tr = new TableRow(getContext());
+                tr.setId(i + 1);
+                TableLayout.LayoutParams trParams = new
+                        TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT,
+                        TableLayout.LayoutParams.WRAP_CONTENT);
+                trParams.setMargins(leftRowMargin, topRowMargin, rightRowMargin,
+                        bottomRowMargin);
+                tr.setPadding(0, 0, 0, 0);
+                tr.setLayoutParams(trParams);
+                tr.addView(tv);
+                tr.addView(tv2);
+                tr.addView(tv3);
+                tr.addView(tv4);
+                tr.addView(tv5);
+                if (i > -1) {
+                    tr.setOnClickListener(new View.OnClickListener() {
+                        public void onClick(View v) {
+                            TableRow tr = (TableRow) v;
+                        }
+                    });
+                }
+                mTableLayout.addView(tr, trParams);
+                if (i > -1) {
+                    // add separator row
+                    final TableRow trSep = new TableRow(getContext());
+                    TableLayout.LayoutParams trParamsSep = new
+                            TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT,
+                            TableLayout.LayoutParams.WRAP_CONTENT);
+                    trParamsSep.setMargins(leftRowMargin, topRowMargin,
+                            rightRowMargin, bottomRowMargin);
+                    trSep.setLayoutParams(trParamsSep);
+                    TextView tvSep = new TextView(getContext());
+                    TableRow.LayoutParams tvSepLay = new
+                            TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT,
+                            TableRow.LayoutParams.WRAP_CONTENT);
+                    tvSepLay.span = 4;
+                    tvSep.setLayoutParams(tvSepLay);
+                    tvSep.setBackgroundColor(Color.parseColor("#d9d9d9"));
+                    tvSep.setHeight(1);
+                    trSep.addView(tvSep);
+                    mTableLayout.addView(trSep, trParamsSep);
+                }
+            }
+        }
 }

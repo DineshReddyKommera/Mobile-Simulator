@@ -111,7 +111,6 @@
         <EditText
                 android:layout_width="120dp"
                 android:layout_height="43dp"
-                android:inputType="number"
                 android:ems="10"
                 android:id="@+id/m_edt_c_address"
                 app:layout_constraintStart_toStartOf="parent"
