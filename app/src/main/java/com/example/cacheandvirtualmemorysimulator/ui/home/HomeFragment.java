@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.*;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.example.cacheandvirtualmemorysimulator.POJO.CacheRecord;
@@ -59,6 +60,8 @@ public class HomeFragment extends Fragment {
     int currentIndexDecimal;
     String currentBlockHex;
     int stepsCount=0;
+    int totalInstructions = 0;
+    int totalHitInstructions = 0;
 
     CacheRecord[] cacheTable;
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -89,8 +92,9 @@ public class HomeFragment extends Fragment {
         mEdtAddress = root.findViewById(R.id.m_edt_c_address);
 
         mBtnGetRandom = root.findViewById(R.id.m_c_random_btn);
+        mBtnGetRandom.setEnabled(false);
         mBtnInstSubmit = root.findViewById(R.id.m_cache_submit_button);
-
+        mBtnInstSubmit.setEnabled(false);
         mBtnNextStep = root.findViewById(R.id.m_btn_c_next_move);
         mBtnNextStep.setEnabled(false);
         mBtnFastForward = root.findViewById(R.id.m_btn_c_fast_forward);
@@ -135,7 +139,9 @@ public class HomeFragment extends Fragment {
                         cacheTable[i] = new CacheRecord(i,false,"-","0",false);
                     }
                     stepsCount=1;
-                    updateCacheTable(cacheTable);
+                    mBtnGetRandom.setEnabled(true);
+                    mBtnInstSubmit.setEnabled(true);
+                    updateCacheTable(cacheTable,-2, false, false, false);
                     updateMemoryTable(blockBitSize,offsetBits);
                 }
             }
@@ -165,8 +171,9 @@ public class HomeFragment extends Fragment {
                 currentBlockHex = Integer.toHexString(currentBlockDecimal);
                 mTxtInstUpdates.setText("Information:" +
                         "\nThe instruction has been converted from hex to binary and allocated to tag, index, and offset respectively");
-                updateInstructionBreakdown(currentTagBinary,currentIndexBinary,currentOffsetBinary);
+                updateInstructionBreakdown(currentTagBinary,currentIndexBinary,currentOffsetBinary,false,false);
                 stepsCount=1;
+                totalInstructions++;
                 mBtnNextStep.setEnabled(true);
                 mBtnFastForward.setEnabled(true);
             }
@@ -177,7 +184,7 @@ public class HomeFragment extends Fragment {
             public void onClick(View view) {
                 mTxtInstUpdates.setText("Information:" +
                                 "\nThe cycle has been completed. Please submit another instructions");
-                updateCacheTable(cacheTable);
+                updateCacheTable(cacheTable,-2, false, false, false);
             }
         });
 
@@ -231,46 +238,56 @@ public class HomeFragment extends Fragment {
                         mBtnNextStep.setEnabled(false);
                         mBtnFastForward.setEnabled(false);
                     }
-                    updateCacheTable(cacheTable);
+                    updateCacheTable(cacheTable,currentIndexDecimal, false, false, false);
                 }else{
                     if(stepsCount==1){
                         mTxtInstUpdates.append("Index requested will be searched in cache as highlighted in yellow");
+                        updateInstructionBreakdown(currentTagBinary,currentIndexBinary,currentOffsetBinary,false,true);
+                        updateCacheTable(cacheTable,currentIndexDecimal, false, false, false);
                         stepsCount++;
                     }else if(stepsCount==2){
                         mTxtInstUpdates.append("Valid bit will be obtained and analysed.");
+                        updateCacheTable(cacheTable,currentIndexDecimal, true, false, false);
                         stepsCount++;
                     } else if(stepsCount==3){
                         if(cacheTable[currentIndexDecimal].isValid()) {
                             mTxtInstUpdates.append("Valid bit is 1, therefore we should look into the tag.");
                             if(cacheTable[currentIndexDecimal].getTag().equals(currentTagBinary)){
                                 mTxtInstUpdates.append("Requested Tag and cached tag is the same. Therefore, CACHE HIT");
+                                totalHitInstructions++;
                                 stepsCount=5;
                             }else{
                                 mTxtInstUpdates.append("Requested Tag and cached tag is NOT the same. Therefore, CACHE MISS");
                                 stepsCount++;
                             }
+                            updateInstructionBreakdown(currentTagBinary,currentIndexBinary,currentOffsetBinary,true,true);
+                            updateCacheTable(cacheTable,currentIndexDecimal, false,true,false);
                         }else{
                             mTxtInstUpdates.append("Valid bit is 0, therefore CACHE MISS is obtained. Cache is updated with the new dataset");
                             stepsCount=5;
                         }
                     } else if(stepsCount==4){
+                        updateInstructionBreakdown(currentTagBinary,currentIndexBinary,currentOffsetBinary,false,true);
                         mTxtInstUpdates.append("Cache replace the old index.");
                         if(cacheTable[currentIndexDecimal].isDirtyBit()){
                             mTxtInstUpdates.append("Since dirty bit is 1, Memory will be updated.");
                         }else{
                             mTxtInstUpdates.append("Since dirty bit is 0, there is no additional operation required.");
                         }
+                        updateCacheTable(cacheTable,currentIndexDecimal, false, false, true);
                         stepsCount++;
                     } else if(stepsCount==5){
                         mTxtInstUpdates.append("Cache table is updated accordingly. Block "+currentBlockHex+" with offset 0 to "+(Math.pow(2,offsetBits)-1)+" is transferred to cache");
                         CacheRecord cacheRecord = new CacheRecord(currentIndexDecimal,true,currentTagBinary
                                 ,"BLOCK "+currentBlockHex.toUpperCase()+" WORD 0 - "+((int)Math.pow(2,indexBitSize)-1),false);
                         cacheTable[currentIndexDecimal] = cacheRecord;
-                        updateCacheTable(cacheTable);
+                        updateCacheTable(cacheTable,currentIndexDecimal, false, false, false);
                         stepsCount=6;
                     } else if(stepsCount==6){
                         mTxtInstUpdates.append("The cycle has been completed. Please submit another instructions");
                         stepsCount=0;
+                        updateCacheTable(cacheTable,-2, false, false, false);
+                        updateInstructionBreakdown(currentTagBinary,currentIndexBinary,currentOffsetBinary,false,false);
                         mBtnNextStep.setEnabled(false);
                         mBtnFastForward.setEnabled(false);
                     }
@@ -281,7 +298,7 @@ public class HomeFragment extends Fragment {
         return root;
     }
 
-    void updateInstructionBreakdown(String tag,String index, String offset){
+    void updateInstructionBreakdown(String tag,String index, String offset,boolean highLightTag,boolean highLightIndex){
         mInstructionTableLayout.removeAllViews();
         int leftRowMargin = 0;
         int topRowMargin = 0;
@@ -331,7 +348,8 @@ public class HomeFragment extends Fragment {
         tv4.setGravity(Gravity.LEFT);
         tv4.setPadding(5, 15, 0, 15);
         tv4.setText(tag);
-        tv4.setBackgroundColor(Color.parseColor("#ffffff"));
+        if(highLightTag)
+            tv4.setBackgroundColor(ContextCompat.getColor(this.getActivity(),R.color.tag));
         tv4.setTextColor(Color.parseColor("#000000"));
         final TextView tv5 = new TextView(getContext());
         tv5.setLayoutParams(new
@@ -340,7 +358,8 @@ public class HomeFragment extends Fragment {
         tv5.setGravity(Gravity.LEFT);
         tv5.setPadding(5, 15, 0, 15);
         tv5.setText(index);
-        tv5.setBackgroundColor(Color.parseColor("#ffffff"));
+        if(highLightIndex)
+            tv5.setBackgroundColor(Color.parseColor("#ffff00"));
         tv5.setTextColor(Color.parseColor("#000000"));
         final TextView tv6 = new TextView(getContext());
         tv6.setLayoutParams(new
@@ -349,7 +368,7 @@ public class HomeFragment extends Fragment {
         tv6.setGravity(Gravity.LEFT);
         tv6.setPadding(5, 15, 0, 15);
         tv6.setText(offset);
-        tv6.setBackgroundColor(Color.parseColor("#ffffff"));
+        //tv6.setBackgroundColor(Color.parseColor("#ffffff"));
         tv6.setTextColor(Color.parseColor("#000000"));
         final TableRow tr1 = new TableRow(getContext());
         tr1.setId(1);
@@ -433,7 +452,7 @@ public class HomeFragment extends Fragment {
         mMemoryBlockLayout.addView(trSep, trParamsSep);
     }
 
-    void updateCacheTable(CacheRecord[] cacheTable){
+    void updateCacheTable(CacheRecord[] cacheTable,int highLightRecord,boolean highLightValidBit, boolean highLightTag,boolean highLightDirtyBit){
             mCacheTableLayout.removeAllViews();
             TextView textSpacer = null;
             int leftRowMargin = 0;
@@ -459,7 +478,10 @@ public class HomeFragment extends Fragment {
                     tv.setText("Index#");
                     tv.setBackgroundColor(Color.parseColor("#f0f0f0"));
                 } else {
-                    tv.setBackgroundColor(Color.parseColor("#f8f8f8"));
+//                    if(highLightRecord==i)
+//                        tv.setBackgroundColor(Color.parseColor("#ffff00"));
+//                    else
+//                        tv.setBackgroundColor(Color.parseColor("#f8f8f8"));
                     tv.setText(String.valueOf(cacheRecord.getIndex()));
                 }
                 //tv.setTextSize(TypedValue.COMPLEX_UNIT_PX);
@@ -479,7 +501,8 @@ public class HomeFragment extends Fragment {
                     tv2.setText("Valid");
                     tv2.setBackgroundColor(Color.parseColor("#f7f7f7"));
                 } else {
-                    tv2.setBackgroundColor(Color.parseColor("#ffffff"));
+                    if(highLightRecord==i && highLightValidBit)
+                        tv2.setBackgroundColor(ContextCompat.getColor(getActivity(),R.color.validBit));
                     tv2.setTextColor(Color.parseColor("#000000"));
                     tv2.setText(String.valueOf(cacheRecord.isValid() ? 1 : 0));
                 }
@@ -499,7 +522,8 @@ public class HomeFragment extends Fragment {
                     tv3.setText("Tag");
                     tv3.setBackgroundColor(Color.parseColor("#f7f7f7"));
                 } else {
-                    tv3.setBackgroundColor(Color.parseColor("#ffffff"));
+                    if(highLightRecord==i && highLightTag)
+                        tv3.setBackgroundColor(ContextCompat.getColor(this.getActivity(),R.color.tag));
                     tv3.setTextColor(Color.parseColor("#000000"));
                     tv3.setText(cacheRecord.getTag());
                 }
@@ -520,7 +544,10 @@ public class HomeFragment extends Fragment {
                     tv4.setText("Data (Hex)");
                     tv4.setBackgroundColor(Color.parseColor("#f7f7f7"));
                 } else {
-                    tv4.setBackgroundColor(Color.parseColor("#ffffff"));
+//                    if(highLightRecord==i)
+//                        tv4.setBackgroundColor(Color.parseColor("#ffff00"));
+//                    else
+//                        tv4.setBackgroundColor(Color.parseColor("#ffffff"));
                     tv4.setTextColor(Color.parseColor("#000000"));
                     tv4.setText(cacheRecord.getData());
                 }
@@ -541,7 +568,10 @@ public class HomeFragment extends Fragment {
                     tv5.setText("Dirty bit");
                     tv5.setBackgroundColor(Color.parseColor("#f7f7f7"));
                 } else {
-                    tv5.setBackgroundColor(Color.parseColor("#ffffff"));
+//                    if(highLightRecord==i)
+//                        tv5.setBackgroundColor(Color.parseColor("#ffff00"));
+//                    else
+//                        tv5.setBackgroundColor(Color.parseColor("#ffffff"));
                     tv5.setTextColor(Color.parseColor("#000000"));
                     tv5.setText(String.valueOf(cacheRecord.isDirtyBit() ? 1 : 0));
                 }
@@ -560,6 +590,8 @@ public class HomeFragment extends Fragment {
                 tr.addView(tv3);
                 tr.addView(tv4);
                 tr.addView(tv5);
+                if(highLightRecord==i)
+                        tr.setBackgroundColor(Color.parseColor("#ffff00"));
                 if (i > -1) {
                     tr.setOnClickListener(new View.OnClickListener() {
                         public void onClick(View v) {
