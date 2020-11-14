@@ -39,7 +39,9 @@ public class HomeFragment extends Fragment {
     TextView mTxtInstUpdates;
     Button mBtnNextStep;
     Button mBtnFastForward;
-    TableLayout mTableLayout;
+    TableLayout mCacheTableLayout;
+    TableLayout mMemoryBlockLayout;
+    TableLayout mInstructionTableLayout;
     int cacheSize;
     int memorySize;
     int offsetBits;
@@ -56,6 +58,7 @@ public class HomeFragment extends Fragment {
     int currentBlockDecimal;
     int currentIndexDecimal;
     String currentBlockHex;
+    int stepsCount=0;
 
     CacheRecord[] cacheTable;
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -74,7 +77,7 @@ public class HomeFragment extends Fragment {
         mEdtOffsetBits = root.findViewById(R.id.m_edt_c_offset_bits);
         mBtnReset = root.findViewById(R.id.m_btn_c_reset);
         mBtnDesignSubmit = root.findViewById(R.id.m_btn_c_design_submit);
-
+        mMemoryBlockLayout = root.findViewById(R.id.tlGridTable);
         mSprInstType = root.findViewById(R.id.m_c_instruction_type);
         List<String> instructions = new LinkedList<>();
         instructions.add("Load");
@@ -88,10 +91,16 @@ public class HomeFragment extends Fragment {
         mBtnGetRandom = root.findViewById(R.id.m_c_random_btn);
         mBtnInstSubmit = root.findViewById(R.id.m_cache_submit_button);
 
+        mBtnNextStep = root.findViewById(R.id.m_btn_c_next_move);
+        mBtnNextStep.setEnabled(false);
+        mBtnFastForward = root.findViewById(R.id.m_btn_c_fast_forward);
+        mBtnFastForward.setEnabled(false);
         mTxtInstUpdates = root.findViewById(R.id.m_txt_c_instruction);
         mTxtInstUpdates.setMovementMethod(new ScrollingMovementMethod());
 
-        mTableLayout = root.findViewById(R.id.m_c_cache_table);
+        mInstructionTableLayout = root.findViewById(R.id.m_c_instruction_table);
+
+        mCacheTableLayout = root.findViewById(R.id.m_c_cache_table);
         mBtnDesignSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -113,7 +122,7 @@ public class HomeFragment extends Fragment {
                     mEdtOffsetBits.setError("OffsetBits for given input should be less than or equal to"+cacheSizeCheck);
                 }else{
                     //TODO: If time permits restate calculated instructions more user friendly
-                    mTxtInstUpdates.setText("Instructions:\n" +
+                    mTxtInstUpdates.setText("Information:\n" +
                             "Cache Bits =log2("+cacheSize+") = "+cacheBitSize+ " bits\n" +
                             "Instruction Length = log2("+memorySize+") = "+memoryBitSize+" bits\n" +
                             "Offset ="+offsetBits+" \n" +
@@ -125,7 +134,9 @@ public class HomeFragment extends Fragment {
                     for(int i=0;i<Math.pow(2,indexBitSize);i++){
                         cacheTable[i] = new CacheRecord(i,false,"-","0",false);
                     }
+                    stepsCount=1;
                     updateCacheTable(cacheTable);
+                    updateMemoryTable(blockBitSize,offsetBits);
                 }
             }
         });
@@ -152,17 +163,278 @@ public class HomeFragment extends Fragment {
                 currentBlockBinary = binaryInstruction.substring(0,blockBitSize);
                 currentBlockDecimal = Integer.parseInt(currentBlockBinary,2);
                 currentBlockHex = Integer.toHexString(currentBlockDecimal);
-                CacheRecord cacheRecord = new CacheRecord(currentIndexDecimal,true,currentTagBinary
-                        ,"BLOCK "+currentBlockHex.toUpperCase()+" WORD 0 - "+((int)Math.pow(2,indexBitSize)-1),false);
-                cacheTable[currentIndexDecimal] = cacheRecord;
-                updateCacheTable(cacheTable);
-                }
+                mTxtInstUpdates.setText("Information:" +
+                        "\nThe instruction has been converted from hex to binary and allocated to tag, index, and offset respectively");
+                updateInstructionBreakdown(currentTagBinary,currentIndexBinary,currentOffsetBinary);
+                stepsCount=1;
+                mBtnNextStep.setEnabled(true);
+                mBtnFastForward.setEnabled(true);
+            }
         });
+
+        mBtnFastForward.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mTxtInstUpdates.setText("Information:" +
+                                "\nThe cycle has been completed. Please submit another instructions");
+                updateCacheTable(cacheTable);
+            }
+        });
+
+        mBtnNextStep.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mTxtInstUpdates.setText("Information:\n");
+                if(mSprInstType.getSelectedItem().toString().equalsIgnoreCase("store")) {
+                    if(stepsCount==1){
+                            mTxtInstUpdates.append(mRadWriteBack.isChecked()
+                                    ?"Write back policy is adopted. Cache will be updated with dirty bit"
+                                    :"Write Through Policy is adopted. Memory and Cache will be updated at the same time.");
+                        stepsCount++;
+                    } else if(stepsCount==2){
+                        mTxtInstUpdates.append("Search is formed to determine whether the requested address is available in cache table");
+                        stepsCount++;
+                    } else if(stepsCount==3){
+                        if(cacheTable[currentIndexDecimal].getTag().equals(currentTagBinary)){
+                            mTxtInstUpdates.append("Requested address is found in cache table");
+                            stepsCount++;
+                        }else{
+                            mTxtInstUpdates.append("Requested address is not found in cache table");
+                            if(mRadWriteAround.isChecked()){
+                                stepsCount=5;
+                            }else{
+                                stepsCount++;
+                            }
+                        }
+
+                    } else if(stepsCount==4){
+                        if(cacheTable[currentIndexDecimal].getTag().equals(currentTagBinary)){
+                            if(mRadWriteBack.isChecked()) {
+                                mTxtInstUpdates.append("Highlighted cache is updated with dirty bit = 1");
+                                cacheTable[currentIndexDecimal].setDirtyBit(true);
+                            }else {
+                                mTxtInstUpdates.append("Highlighted memory block and cache is updated");
+                            }
+                        }else{
+                            mTxtInstUpdates.append("Cache does not contain requested tag. ");
+                            if(mRadWriteOnAllocate.isChecked()) {
+                                mTxtInstUpdates.append("Data is loaded and content is updated based on Write On Allocate policy");
+                                CacheRecord cacheRecord = new CacheRecord(currentIndexDecimal,true,currentTagBinary,"BLOCK "+currentBlockHex.toUpperCase()+" WORD 0 - "+((int)Math.pow(2,indexBitSize)-1),false);
+                                cacheTable[currentIndexDecimal]=cacheRecord;
+                            }else{
+                                mTxtInstUpdates.append(" Only memory block is updated based on Write Around Policy.");
+                            }
+                        }
+                        stepsCount = 6;
+                    } else if(stepsCount==5){
+                        stepsCount=0;
+                        mBtnNextStep.setEnabled(false);
+                        mBtnFastForward.setEnabled(false);
+                    }
+                    updateCacheTable(cacheTable);
+                }else{
+                    if(stepsCount==1){
+                        mTxtInstUpdates.append("Index requested will be searched in cache as highlighted in yellow");
+                        stepsCount++;
+                    }else if(stepsCount==2){
+                        mTxtInstUpdates.append("Valid bit will be obtained and analysed.");
+                        stepsCount++;
+                    } else if(stepsCount==3){
+                        if(cacheTable[currentIndexDecimal].isValid()) {
+                            mTxtInstUpdates.append("Valid bit is 1, therefore we should look into the tag.");
+                            if(cacheTable[currentIndexDecimal].getTag().equals(currentTagBinary)){
+                                mTxtInstUpdates.append("Requested Tag and cached tag is the same. Therefore, CACHE HIT");
+                                stepsCount=5;
+                            }else{
+                                mTxtInstUpdates.append("Requested Tag and cached tag is NOT the same. Therefore, CACHE MISS");
+                                stepsCount++;
+                            }
+                        }else{
+                            mTxtInstUpdates.append("Valid bit is 0, therefore CACHE MISS is obtained. Cache is updated with the new dataset");
+                            stepsCount=5;
+                        }
+                    } else if(stepsCount==4){
+                        mTxtInstUpdates.append("Cache replace the old index.");
+                        if(cacheTable[currentIndexDecimal].isDirtyBit()){
+                            mTxtInstUpdates.append("Since dirty bit is 1, Memory will be updated.");
+                        }else{
+                            mTxtInstUpdates.append("Since dirty bit is 0, there is no additional operation required.");
+                        }
+                        stepsCount++;
+                    } else if(stepsCount==5){
+                        mTxtInstUpdates.append("Cache table is updated accordingly. Block "+currentBlockHex+" with offset 0 to "+(Math.pow(2,offsetBits)-1)+" is transferred to cache");
+                        CacheRecord cacheRecord = new CacheRecord(currentIndexDecimal,true,currentTagBinary
+                                ,"BLOCK "+currentBlockHex.toUpperCase()+" WORD 0 - "+((int)Math.pow(2,indexBitSize)-1),false);
+                        cacheTable[currentIndexDecimal] = cacheRecord;
+                        updateCacheTable(cacheTable);
+                        stepsCount=6;
+                    } else if(stepsCount==6){
+                        mTxtInstUpdates.append("The cycle has been completed. Please submit another instructions");
+                        stepsCount=0;
+                        mBtnNextStep.setEnabled(false);
+                        mBtnFastForward.setEnabled(false);
+                    }
+                }
+            }
+        });
+
         return root;
     }
 
+    void updateInstructionBreakdown(String tag,String index, String offset){
+        mInstructionTableLayout.removeAllViews();
+        int leftRowMargin = 0;
+        int topRowMargin = 0;
+        int rightRowMargin = 0;
+        int bottomRowMargin = 0;
+        final TextView tv = new TextView(getContext());
+        tv.setLayoutParams(new
+                TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT,
+                TableRow.LayoutParams.WRAP_CONTENT));
+        tv.setGravity(Gravity.LEFT);
+        tv.setPadding(5, 15, 0, 15);
+        tv.setText("Tag");
+        tv.setBackgroundColor(Color.parseColor("#f0f0f0"));
+        final TextView tv2 = new TextView(getContext());
+            tv2.setLayoutParams(new
+                    TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT,
+                    TableRow.LayoutParams.WRAP_CONTENT));
+        tv2.setGravity(Gravity.LEFT);
+        tv2.setPadding(5, 15, 0, 15);
+        tv2.setText("Index");
+        tv2.setBackgroundColor(Color.parseColor("#f0f0f0"));
+        final TextView tv3 = new TextView(getContext());
+        tv3.setLayoutParams(new
+                TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT,
+                TableRow.LayoutParams.WRAP_CONTENT));
+        tv3.setGravity(Gravity.LEFT);
+        tv3.setPadding(5, 15, 0, 15);
+        tv3.setText("Offset");
+        tv3.setBackgroundColor(Color.parseColor("#f0f0f0"));
+        final TableRow tr = new TableRow(getContext());
+        tr.setId(0);
+        TableLayout.LayoutParams trParams = new
+                TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT,
+                TableLayout.LayoutParams.WRAP_CONTENT);
+        trParams.setMargins(leftRowMargin, topRowMargin, rightRowMargin,
+                bottomRowMargin);
+        tr.setPadding(0, 0, 0, 0);
+        tr.setLayoutParams(trParams);
+        tr.addView(tv);
+        tr.addView(tv2);
+        tr.addView(tv3);
+
+        final TextView tv4 = new TextView(getContext());
+        tv4.setLayoutParams(new
+                TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT,
+                TableRow.LayoutParams.WRAP_CONTENT));
+        tv4.setGravity(Gravity.LEFT);
+        tv4.setPadding(5, 15, 0, 15);
+        tv4.setText(tag);
+        tv4.setBackgroundColor(Color.parseColor("#ffffff"));
+        tv4.setTextColor(Color.parseColor("#000000"));
+        final TextView tv5 = new TextView(getContext());
+        tv5.setLayoutParams(new
+                TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT,
+                TableRow.LayoutParams.WRAP_CONTENT));
+        tv5.setGravity(Gravity.LEFT);
+        tv5.setPadding(5, 15, 0, 15);
+        tv5.setText(index);
+        tv5.setBackgroundColor(Color.parseColor("#ffffff"));
+        tv5.setTextColor(Color.parseColor("#000000"));
+        final TextView tv6 = new TextView(getContext());
+        tv6.setLayoutParams(new
+                TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT,
+                TableRow.LayoutParams.WRAP_CONTENT));
+        tv6.setGravity(Gravity.LEFT);
+        tv6.setPadding(5, 15, 0, 15);
+        tv6.setText(offset);
+        tv6.setBackgroundColor(Color.parseColor("#ffffff"));
+        tv6.setTextColor(Color.parseColor("#000000"));
+        final TableRow tr1 = new TableRow(getContext());
+        tr1.setId(1);
+        trParams.setMargins(leftRowMargin, topRowMargin, rightRowMargin,
+                bottomRowMargin);
+        tr1.setPadding(0, 0, 0, 0);
+        tr1.setLayoutParams(trParams);
+        tr1.addView(tv4);
+        tr1.addView(tv5);
+        tr1.addView(tv6);
+
+        mInstructionTableLayout.addView(tr, trParams);
+        mInstructionTableLayout.addView(tr1, trParams);
+        // add separator row
+        final TableRow trSep = new TableRow(getContext());
+        TableLayout.LayoutParams trParamsSep = new
+                TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT,
+                TableLayout.LayoutParams.WRAP_CONTENT);
+        trParamsSep.setMargins(leftRowMargin, topRowMargin,
+                rightRowMargin, bottomRowMargin);
+        trSep.setLayoutParams(trParamsSep);
+        TextView tvSep = new TextView(getContext());
+        TableRow.LayoutParams tvSepLay = new
+                TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT,
+                TableRow.LayoutParams.WRAP_CONTENT);
+        tvSepLay.span = 4;
+        tvSep.setLayoutParams(tvSepLay);
+        tvSep.setBackgroundColor(Color.parseColor("#d9d9d9"));
+        tvSep.setHeight(1);
+        trSep.addView(tvSep);
+        mInstructionTableLayout.addView(trSep, trParamsSep);
+    }
+
+    void updateMemoryTable(int blocks,int words){
+        mMemoryBlockLayout.removeAllViews();
+        int leftRowMargin = 0;
+        int topRowMargin = 0;
+        int rightRowMargin = 0;
+        int bottomRowMargin = 0;
+
+        for (int i = 0; i < Math.pow(2,blocks); i++) {
+            final TableRow tr = new TableRow(getContext());
+            tr.setId(i);
+            TableLayout.LayoutParams trParams = new
+                    TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT,
+                    TableLayout.LayoutParams.WRAP_CONTENT);
+            trParams.setMargins(leftRowMargin, topRowMargin, rightRowMargin,
+                    bottomRowMargin);
+            tr.setPadding(0, 0, 0, 0);
+            tr.setLayoutParams(trParams);
+            TextView[] textViews = new TextView[(int) Math.pow(words,2)];
+            for(int j=0;j < Math.pow(2,words);j++){
+                textViews[j] = new TextView(getContext());
+                textViews[j].setLayoutParams(new
+                        TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT,
+                        TableRow.LayoutParams.WRAP_CONTENT));
+                textViews[j].setGravity(Gravity.LEFT);
+                textViews[j].setText("B."+Integer.toHexString(i).toUpperCase()+" W."+Integer.toHexString(j).toUpperCase());
+                textViews[j].setPadding(5, 15, 0, 15);
+                tr.addView(textViews[j]);
+            }
+            mMemoryBlockLayout.addView(tr, trParams);
+        }
+
+        final TableRow trSep = new TableRow(getContext());
+        TableLayout.LayoutParams trParamsSep = new
+                TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT,
+                TableLayout.LayoutParams.WRAP_CONTENT);
+        trParamsSep.setMargins(leftRowMargin, topRowMargin,
+                rightRowMargin, bottomRowMargin);
+        trSep.setLayoutParams(trParamsSep);
+        TextView tvSep = new TextView(getContext());
+        TableRow.LayoutParams tvSepLay = new
+                TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT,
+                TableRow.LayoutParams.WRAP_CONTENT);
+        tvSepLay.span = 4;
+        tvSep.setLayoutParams(tvSepLay);
+        tvSep.setBackgroundColor(Color.parseColor("#d9d9d9"));
+        tvSep.setHeight(1);
+        trSep.addView(tvSep);
+        mMemoryBlockLayout.addView(trSep, trParamsSep);
+    }
+
     void updateCacheTable(CacheRecord[] cacheTable){
-            mTableLayout.removeAllViews();
+            mCacheTableLayout.removeAllViews();
             TextView textSpacer = null;
             int leftRowMargin = 0;
             int topRowMargin = 0;
@@ -295,7 +567,7 @@ public class HomeFragment extends Fragment {
                         }
                     });
                 }
-                mTableLayout.addView(tr, trParams);
+                mCacheTableLayout.addView(tr, trParams);
                 if (i > -1) {
                     // add separator row
                     final TableRow trSep = new TableRow(getContext());
@@ -314,7 +586,7 @@ public class HomeFragment extends Fragment {
                     tvSep.setBackgroundColor(Color.parseColor("#d9d9d9"));
                     tvSep.setHeight(1);
                     trSep.addView(tvSep);
-                    mTableLayout.addView(trSep, trParamsSep);
+                    mCacheTableLayout.addView(trSep, trParamsSep);
                 }
             }
         }
