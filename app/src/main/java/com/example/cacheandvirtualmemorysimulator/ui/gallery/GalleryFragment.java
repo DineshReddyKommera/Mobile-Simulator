@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,6 +29,7 @@ import com.example.cacheandvirtualmemorysimulator.R;
 
 public class GalleryFragment extends Fragment {
 
+    private static final String TAG ="SearchPG:" ;
     private GalleryViewModel galleryViewModel;
     EditText mEdtPhysicalPageSize;
     EditText mEdtVirtualMemorySize;
@@ -60,6 +62,7 @@ public class GalleryFragment extends Fragment {
     PhysicalMemoryRecord physicalMemoryRecords[];
     PageTableRecord pageTableRecords[];
     int tlbCurrentCounter=0;
+    int phyCurrentCounter=0;
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_gallery, container, false);
@@ -79,10 +82,11 @@ public class GalleryFragment extends Fragment {
         mEdtAddress = root.findViewById(R.id.m_edt_c_address);
         mBtnGetRandom = root.findViewById(R.id.m_c_random_btn);
         mBtnNextStep = root.findViewById(R.id.m_btn_c_next_move);
-        //mBtnNextStep.setEnabled(false);
         mBtnFastForward = root.findViewById(R.id.m_btn_c_fast_forward);
-        //mBtnFastForward.setEnabled(false);
-        //mBtnGetRandom.setEnabled(false);
+        mBtnFastForward.setEnabled(false);
+        mBtnNextStep.setEnabled(false);
+        mBtnGetRandom.setEnabled(false);
+        mBtnInstSubmit.setEnabled(false);
         mBtnDesignSubmit.setOnClickListener(new View.OnClickListener(){
 
             @Override
@@ -121,6 +125,10 @@ public class GalleryFragment extends Fragment {
                     updateTLBTable(tlbrecords);
                     updatePhysicalMemory(physicalMemoryRecords);
                     updatePageTable(pageTableRecords);
+                    tlbCurrentCounter=0;
+                    phyCurrentCounter=0;
+                    mBtnGetRandom.setEnabled(true);
+                    mBtnInstSubmit.setEnabled(true);
                 }
             }
         });
@@ -136,6 +144,7 @@ public class GalleryFragment extends Fragment {
         mBtnInstSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                addressInstruction=Integer.parseInt(mEdtAddress.getText().toString(),16);
                 String binaryInstruction = String
                         .format("%"+ virtualMemoryBitSize+"s",Integer.toBinaryString(addressInstruction))
                         .replace(' ','0');
@@ -145,7 +154,9 @@ public class GalleryFragment extends Fragment {
                         "\nThe instruction has been converted from hex to binary and allocated to tag, index, and offset respectively");
                 stepNumber = 2;
                 updateInstructionTable(currentPageBinary,currentOffsetBinary,binaryInstruction.length()-offsetBits,offsetBits);
-                //updateTLBTable();
+                mBtnFastForward.setEnabled(true);
+                mBtnNextStep.setEnabled(true);
+
             }
         });
 
@@ -155,6 +166,7 @@ public class GalleryFragment extends Fragment {
                 while(stepNumber<=6){
                     executeInstruction();
                 }
+                mBtnNextStep.setEnabled(false);
             }
         });
         mBtnNextStep.setOnClickListener(new View.OnClickListener() {
@@ -204,15 +216,30 @@ public class GalleryFragment extends Fragment {
             }
         } else if(stepNumber==6){
             //Store in Table if item not found
-            mTxtInstUpdates.setText("Information:" +
-                    "\nThe cycle has been completed. Please submit another instructions");
             if(!tlbhit){
                 if(!pagetablehit){
                     //update tlb,physical memory and page table
-                    tlbrecords[tlbCurrentCounter%tlbEntries]= new TLBRecord(tlbCurrentCounter%tlbEntries,currentPageBinary,currentOffsetBinary);
+                    tlbrecords[tlbCurrentCounter%tlbEntries]= new TLBRecord(tlbCurrentCounter%tlbEntries,currentPageBinary,Integer.toString(tlbCurrentCounter%tlbEntries));
+                    tlbCurrentCounter++;
+                    updateTLBTable(tlbrecords);
+                    int phyMemoryRecordsCount = (physicalPageSize)/(int)Math.pow(2,offsetBits);
+                    physicalMemoryRecords[phyCurrentCounter%phyMemoryRecordsCount] = new PhysicalMemoryRecord(Integer.toHexString(phyCurrentCounter%phyMemoryRecordsCount),"Blocks "+currentPageBinary+" Words: 0 - "+ Integer.toString((int)Math.pow(2,offsetBits)-1));
+                    updatePhysicalMemory(physicalMemoryRecords);
+
+                    int index = Integer.parseInt(currentPageBinary,2);
+                    pageTableRecords[index]=new PageTableRecord(pageTableRecords[index].getIndex(),"1",Integer.toHexString(phyCurrentCounter%phyMemoryRecordsCount));
+                    phyCurrentCounter++;
+                    updatePageTable(pageTableRecords);
+                } else {
+                    mTxtInstUpdates.setText("Information:" +
+                            "\nPage requested is found in Page Table. Let's fetch the data from Physical Memory. Page is updated in TLB as well.");
+                    tlbrecords[tlbCurrentCounter%tlbEntries]= new TLBRecord(tlbCurrentCounter%tlbEntries,currentPageBinary,Integer.toString(tlbCurrentCounter%tlbEntries));
+                    tlbCurrentCounter++;
                     updateTLBTable(tlbrecords);
                 }
             }
+            mTxtInstUpdates.setText("Information:" +
+                    "\nThe cycle has been completed. Please submit another instructions");
             stepNumber++;
         }
     }
@@ -227,11 +254,15 @@ public class GalleryFragment extends Fragment {
     }
 
     public boolean searchPageTable(){
-        /*for(TLBRecord tlbRecord:tlbrecords){
-            if(tlbRecord.getVirtualPage().equalsIgnoreCase((currentPageBinary))){
+        Log.d(TAG, "searchPageTable: "+pageTableRecords);
+        Log.d(TAG, "searchPageTable:  pagetablehit "+pagetablehit);
+        for(PageTableRecord pageTableRecord:pageTableRecords){
+            if(pageTableRecord.getIndex().equalsIgnoreCase(Integer.toHexString(Integer.parseInt(currentPageBinary,2)))&&pageTableRecord.getValidBit().equals("1")){
                 return true;
             }
-        }*/
+            Log.d(TAG, "searchPageTable: pageTableRecord.getIndex()"+pageTableRecord.getIndex());
+            Log.d(TAG, "searchPageTable: Integer.toHexString(Integer.parseInt(currentPageBinary)))"+Integer.toHexString(Integer.parseInt(currentPageBinary,2)));
+        }
         return false;
     }
     @SuppressLint("ResourceType")
