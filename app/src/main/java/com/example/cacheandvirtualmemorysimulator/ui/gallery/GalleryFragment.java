@@ -2,6 +2,7 @@ package com.example.cacheandvirtualmemorysimulator.ui.gallery;
 
 import android.annotation.SuppressLint;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
@@ -272,6 +273,40 @@ public class GalleryFragment extends Fragment {
         int topRowMargin = 0;
         int rightRowMargin = 0;
         int bottomRowMargin = 0;
+
+        //Header Row
+        final TextView tvHeader = new TextView(getContext());
+        tvHeader.setLayoutParams(new
+                TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT,
+                TableRow.LayoutParams.WRAP_CONTENT));
+        tvHeader.setGravity(Gravity.RIGHT);
+        tvHeader.setPadding(5, 15, 0, 15);
+        tvHeader.setText("Instruction ");
+        tvHeader.setTypeface(Typeface.DEFAULT_BOLD);
+        tvHeader.setBackgroundColor(Color.parseColor("#f0f0f0"));
+
+        final TextView tvHeader1 = new TextView(getContext());
+        tvHeader1.setLayoutParams(new
+                TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT,
+                TableRow.LayoutParams.WRAP_CONTENT));
+        tvHeader1.setGravity(Gravity.LEFT);
+        tvHeader1.setPadding(5, 15, 0, 15);
+        tvHeader1.setText("BreakDown");
+        tvHeader1.setTypeface(Typeface.DEFAULT_BOLD);
+        tvHeader1.setBackgroundColor(Color.parseColor("#f0f0f0"));
+
+        final TableRow trHeader = new TableRow(getContext());
+        trHeader.setId(0);
+        TableLayout.LayoutParams trParams = new
+                TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT,
+                TableLayout.LayoutParams.WRAP_CONTENT);
+        trParams.setMargins(leftRowMargin, topRowMargin, rightRowMargin,
+                bottomRowMargin);
+        trHeader.setPadding(0, 0, 0, 0);
+        trHeader.setLayoutParams(trParams);
+        trHeader.addView(tvHeader);
+        trHeader.addView(tvHeader1);
+
         final TextView tv = new TextView(getContext());
         tv.setLayoutParams(new
                 TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT,
@@ -279,7 +314,7 @@ public class GalleryFragment extends Fragment {
         tv.setGravity(Gravity.CENTER_HORIZONTAL);
         tv.setPadding(5, 15, 0, 15);
         tv.setText(currentPageBinary);
-        tv.setBackgroundColor(Color.parseColor("#f0f0f0"));
+        tv.setTextColor(Color.parseColor("#000000"));
         final TextView tv2 = new TextView(getContext());
         tv2.setLayoutParams(new
                 TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT,
@@ -287,13 +322,10 @@ public class GalleryFragment extends Fragment {
         tv2.setGravity(Gravity.CENTER_HORIZONTAL);
         tv2.setPadding(5, 15, 0, 15);
         tv2.setText(currentOffsetBinary);
-        tv2.setBackgroundColor(Color.parseColor("#f0f0f0"));
+        tv2.setTextColor(Color.parseColor("#000000"));
 
         final TableRow tr = new TableRow(getContext());
         tr.setId(0);
-        TableLayout.LayoutParams trParams = new
-                TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT,
-                TableLayout.LayoutParams.WRAP_CONTENT);
         trParams.setMargins(leftRowMargin, topRowMargin, rightRowMargin,
                 bottomRowMargin);
         tr.setPadding(0, 0, 0, 0);
@@ -327,6 +359,7 @@ public class GalleryFragment extends Fragment {
         tr1.addView(tv4);
         tr1.addView(tv5);
 
+        mInstructionTableLayout.addView(trHeader, trParams);
         mInstructionTableLayout.addView(tr, trParams);
         mInstructionTableLayout.addView(tr1, trParams);
         // add separator row
@@ -341,7 +374,7 @@ public class GalleryFragment extends Fragment {
         TableRow.LayoutParams tvSepLay = new
                 TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT,
                 TableRow.LayoutParams.WRAP_CONTENT);
-        tvSepLay.span = 4;
+        tvSepLay.span = 2;
         tvSep.setLayoutParams(tvSepLay);
         tvSep.setBackgroundColor(Color.parseColor("#d9d9d9"));
         tvSep.setHeight(1);
@@ -356,6 +389,50 @@ public class GalleryFragment extends Fragment {
         int topRowMargin = 0;
         int rightRowMargin = 0;
         int bottomRowMargin = 0;
+        //Header Row
+        final TextView tvHeader = new TextView(getContext());
+        tvHeader.setLayoutParams(new
+                TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT,
+                TableRow.LayoutParams.WRAP_CONTENT));
+        tvHeader.setGravity(Gravity.RIGHT);
+        tvHeader.setPadding(5, 15, 0, 15);
+        tvHeader.setText("");
+        tvHeader.setBackgroundColor(Color.parseColor("#f0f0f0"));
+
+        final TextView tvHeader1 = new TextView(getContext());
+        tvHeader1.setLayoutParams(new
+                TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT,
+                TableRow.LayoutParams.WRAP_CONTENT));
+        tvHeader1.setGravity(Gravity.CENTER_HORIZONTAL);
+        tvHeader1.setPadding(5, 15, 0, 15);
+        tvHeader1.setText("                               Translation Lookup Buffer");
+        tvHeader1.setTypeface(Typeface.DEFAULT_BOLD);
+        tvHeader1.setBackgroundColor(Color.parseColor("#f0f0f0"));
+
+        final TextView tvHeader2 = new TextView(getContext());
+        tvHeader2.setLayoutParams(new
+                TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT,
+                TableRow.LayoutParams.WRAP_CONTENT));
+        tvHeader2.setGravity(Gravity.RIGHT);
+        tvHeader2.setPadding(5, 15, 0, 15);
+        tvHeader2.setText("");
+        tvHeader2.setTypeface(Typeface.DEFAULT_BOLD);
+        tvHeader2.setBackgroundColor(Color.parseColor("#f0f0f0"));
+
+
+        final TableRow trHeader = new TableRow(getContext());
+        trHeader.setId(0);
+        TableLayout.LayoutParams trParams = new
+                TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT,
+                TableLayout.LayoutParams.WRAP_CONTENT);
+        trParams.setMargins(leftRowMargin, topRowMargin, rightRowMargin,
+                bottomRowMargin);
+        trHeader.setPadding(0, 0, 0, 0);
+        trHeader.setLayoutParams(trParams);
+        trHeader.addView(tvHeader);
+        trHeader.addView(tvHeader1);
+        trHeader.addView(tvHeader2);
+        mTlbTableLayout.addView(trHeader, trParams);
         for(int i = -1;i<tlbrecords.length;i++){
             if (i > -1) {
 
@@ -368,7 +445,7 @@ public class GalleryFragment extends Fragment {
             tv.setLayoutParams(new
                     TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT,
                     TableRow.LayoutParams.WRAP_CONTENT));
-            tv.setGravity(Gravity.LEFT);
+            tv.setGravity(Gravity.CENTER_HORIZONTAL);
             tv.setPadding(5, 15, 0, 15);
             if (i == -1) {
                 tv.setText("");
@@ -379,6 +456,7 @@ public class GalleryFragment extends Fragment {
 //                    else
 //                        tv.setBackgroundColor(Color.parseColor("#f8f8f8"));
                 tv.setText(tlbrecords[i].getIndex()+"");
+                tv.setTextColor(Color.parseColor("#000000"));
             }
 
             //Virtual Page
@@ -386,17 +464,19 @@ public class GalleryFragment extends Fragment {
             tv2.setLayoutParams(new
                     TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT,
                     TableRow.LayoutParams.WRAP_CONTENT));
-            tv2.setGravity(Gravity.LEFT);
+            tv2.setGravity(Gravity.CENTER_HORIZONTAL);
             tv2.setPadding(5, 15, 0, 15);
             if (i == -1) {
-                tv2.setText("Virtual Page#");
+                tv2.setText("                 Virtual Page#");
                 tv2.setBackgroundColor(Color.parseColor("#f0f0f0"));
+                tv2.setTextColor(Color.parseColor("#000000"));
             } else {
 //                    if(highLightRecord==i)
 //                        tv.setBackgroundColor(Color.parseColor("#ffff00"));
 //                    else
 //                        tv.setBackgroundColor(Color.parseColor("#f8f8f8"));
-                tv2.setText(tlbrecords[i].getVirtualPage());
+                tv2.setText("                 "+tlbrecords[i].getVirtualPage());
+                tv2.setTextColor(Color.parseColor("#000000"));
             }
 
             //Physical Page
@@ -404,25 +484,24 @@ public class GalleryFragment extends Fragment {
             tv3.setLayoutParams(new
                     TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT,
                     TableRow.LayoutParams.WRAP_CONTENT));
-            tv3.setGravity(Gravity.LEFT);
+            tv3.setGravity(Gravity.CENTER_HORIZONTAL);
             tv3.setPadding(5, 15, 0, 15);
             if (i == -1) {
                 tv3.setText("Physical Page#");
                 tv3.setBackgroundColor(Color.parseColor("#f0f0f0"));
+                tv3.setTextColor(Color.parseColor("#000000"));
             } else {
 //                    if(highLightRecord==i)
 //                        tv.setBackgroundColor(Color.parseColor("#ffff00"));
 //                    else
 //                        tv.setBackgroundColor(Color.parseColor("#f8f8f8"));
                 tv3.setText(tlbrecords[i].getPhysicalPage());
+                tv3.setTextColor(Color.parseColor("#000000"));
             }
 
             //Table row
             final TableRow tr = new TableRow(getContext());
             tr.setId(i + 1);
-            TableLayout.LayoutParams trParams = new
-                    TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT,
-                    TableLayout.LayoutParams.WRAP_CONTENT);
             trParams.setMargins(leftRowMargin, topRowMargin, rightRowMargin,
                     bottomRowMargin);
             tr.setPadding(0, 0, 0, 0);
@@ -444,7 +523,7 @@ public class GalleryFragment extends Fragment {
                 TableRow.LayoutParams tvSepLay = new
                         TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT,
                         TableRow.LayoutParams.WRAP_CONTENT);
-                tvSepLay.span = 4;
+                tvSepLay.span = 3;
                 tvSep.setLayoutParams(tvSepLay);
                 tvSep.setBackgroundColor(Color.parseColor("#d9d9d9"));
                 tvSep.setHeight(1);
@@ -462,6 +541,41 @@ public class GalleryFragment extends Fragment {
         int topRowMargin = 0;
         int rightRowMargin = 0;
         int bottomRowMargin = 0;
+        //Header Row
+        final TextView tvHeader = new TextView(getContext());
+        tvHeader.setLayoutParams(new
+                TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT,
+                TableRow.LayoutParams.WRAP_CONTENT));
+        tvHeader.setGravity(Gravity.RIGHT);
+        tvHeader.setPadding(5, 15, 0, 15);
+        tvHeader.setText("Physical");
+        tvHeader.setTypeface(Typeface.DEFAULT_BOLD);
+        tvHeader.setBackgroundColor(Color.parseColor("#f0f0f0"));
+
+        final TextView tvHeader1 = new TextView(getContext());
+        tvHeader1.setLayoutParams(new
+                TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT,
+                TableRow.LayoutParams.WRAP_CONTENT));
+        tvHeader1.setGravity(Gravity.LEFT);
+        tvHeader1.setPadding(5, 15, 0, 15);
+        tvHeader1.setText(" Memory");
+        tvHeader1.setTypeface(Typeface.DEFAULT_BOLD);
+        tvHeader1.setBackgroundColor(Color.parseColor("#f0f0f0"));
+
+        final TableRow trHeader = new TableRow(getContext());
+        trHeader.setId(0);
+        TableLayout.LayoutParams trParams = new
+                TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT,
+                TableLayout.LayoutParams.WRAP_CONTENT);
+        trParams.setMargins(leftRowMargin, topRowMargin, rightRowMargin,
+                bottomRowMargin);
+        trHeader.setPadding(0, 0, 0, 0);
+        trHeader.setLayoutParams(trParams);
+        trHeader.addView(tvHeader);
+        trHeader.addView(tvHeader1);
+
+        mPhysicalMemoryTableLayout.addView(trHeader, trParams);
+
         for(int i = -1;i<physicalMemoryRecords.length;i++){
             if (i > -1) {
 
@@ -474,7 +588,7 @@ public class GalleryFragment extends Fragment {
             tv.setLayoutParams(new
                     TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT,
                     TableRow.LayoutParams.WRAP_CONTENT));
-            tv.setGravity(Gravity.LEFT);
+            tv.setGravity(Gravity.CENTER_HORIZONTAL);
             tv.setPadding(5, 15, 0, 15);
             if (i == -1) {
                 tv.setText("Physical Page#");
@@ -486,13 +600,13 @@ public class GalleryFragment extends Fragment {
 //                        tv.setBackgroundColor(Color.parseColor("#f8f8f8"));
                 tv.setText(physicalMemoryRecords[i].getPhysicalPage());
             }
-
+            tv.setTextColor(Color.parseColor("#000000"));
             //Virtual Page
             final TextView tv2 = new TextView(getContext());
             tv2.setLayoutParams(new
                     TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT,
                     TableRow.LayoutParams.WRAP_CONTENT));
-            tv2.setGravity(Gravity.LEFT);
+            tv2.setGravity(Gravity.CENTER_HORIZONTAL);
             tv2.setPadding(5, 15, 0, 15);
             if (i == -1) {
                 tv2.setText("Content");
@@ -504,13 +618,10 @@ public class GalleryFragment extends Fragment {
 //                        tv.setBackgroundColor(Color.parseColor("#f8f8f8"));
                 tv2.setText(physicalMemoryRecords[i].getContent());
             }
-
+            tv2.setTextColor(Color.parseColor("#000000"));
             //Table row
             final TableRow tr = new TableRow(getContext());
             tr.setId(i + 1);
-            TableLayout.LayoutParams trParams = new
-                    TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT,
-                    TableLayout.LayoutParams.WRAP_CONTENT);
             trParams.setMargins(leftRowMargin, topRowMargin, rightRowMargin,
                     bottomRowMargin);
             tr.setPadding(0, 0, 0, 0);
@@ -531,7 +642,7 @@ public class GalleryFragment extends Fragment {
                 TableRow.LayoutParams tvSepLay = new
                         TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT,
                         TableRow.LayoutParams.WRAP_CONTENT);
-                tvSepLay.span = 4;
+                tvSepLay.span = 2;
                 tvSep.setLayoutParams(tvSepLay);
                 tvSep.setBackgroundColor(Color.parseColor("#d9d9d9"));
                 tvSep.setHeight(1);
@@ -549,6 +660,51 @@ public class GalleryFragment extends Fragment {
         int topRowMargin = 0;
         int rightRowMargin = 0;
         int bottomRowMargin = 0;
+        //Header Row
+        final TextView tvHeader = new TextView(getContext());
+        tvHeader.setLayoutParams(new
+                TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT,
+                TableRow.LayoutParams.WRAP_CONTENT));
+        tvHeader.setGravity(Gravity.RIGHT);
+        tvHeader.setPadding(5, 15, 0, 15);
+        tvHeader.setText("");
+        tvHeader.setBackgroundColor(Color.parseColor("#f0f0f0"));
+
+        final TextView tvHeader1 = new TextView(getContext());
+        tvHeader1.setLayoutParams(new
+                TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT,
+                TableRow.LayoutParams.WRAP_CONTENT));
+        tvHeader1.setGravity(Gravity.CENTER_HORIZONTAL);
+        tvHeader1.setPadding(5, 15, 0, 15);
+        tvHeader1.setText(" Page Table");
+        tvHeader1.setTypeface(Typeface.DEFAULT_BOLD);
+        tvHeader1.setBackgroundColor(Color.parseColor("#f0f0f0"));
+
+        final TextView tvHeader2 = new TextView(getContext());
+        tvHeader2.setLayoutParams(new
+                TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT,
+                TableRow.LayoutParams.WRAP_CONTENT));
+        tvHeader2.setGravity(Gravity.RIGHT);
+        tvHeader2.setPadding(5, 15, 0, 15);
+        tvHeader2.setText("");
+        tvHeader2.setTypeface(Typeface.DEFAULT_BOLD);
+        tvHeader2.setBackgroundColor(Color.parseColor("#f0f0f0"));
+
+
+        final TableRow trHeader = new TableRow(getContext());
+        trHeader.setId(0);
+        TableLayout.LayoutParams trParams = new
+                TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT,
+                TableLayout.LayoutParams.WRAP_CONTENT);
+        trParams.setMargins(leftRowMargin, topRowMargin, rightRowMargin,
+                bottomRowMargin);
+        trHeader.setPadding(0, 0, 0, 0);
+        trHeader.setLayoutParams(trParams);
+        trHeader.addView(tvHeader);
+        trHeader.addView(tvHeader1);
+        trHeader.addView(tvHeader2);
+        mPageTableLayout.addView(trHeader, trParams);
+
         for(int i = -1;i<pageTableRecords.length;i++){
             if (i > -1) {
 
@@ -561,7 +717,7 @@ public class GalleryFragment extends Fragment {
             tv.setLayoutParams(new
                     TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT,
                     TableRow.LayoutParams.WRAP_CONTENT));
-            tv.setGravity(Gravity.LEFT);
+            tv.setGravity(Gravity.CENTER_HORIZONTAL);
             tv.setPadding(5, 15, 0, 15);
             if (i == -1) {
                 tv.setText("Index");
@@ -573,13 +729,13 @@ public class GalleryFragment extends Fragment {
 //                        tv.setBackgroundColor(Color.parseColor("#f8f8f8"));
                 tv.setText(pageTableRecords[i].getIndex());
             }
-
+            tv.setTextColor(Color.parseColor("#000000"));
             //Virtual Page
             final TextView tv2 = new TextView(getContext());
             tv2.setLayoutParams(new
                     TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT,
                     TableRow.LayoutParams.WRAP_CONTENT));
-            tv2.setGravity(Gravity.LEFT);
+            tv2.setGravity(Gravity.CENTER_HORIZONTAL);
             tv2.setPadding(5, 15, 0, 15);
             if (i == -1) {
                 tv2.setText("Valid");
@@ -591,12 +747,12 @@ public class GalleryFragment extends Fragment {
 //                        tv.setBackgroundColor(Color.parseColor("#f8f8f8"));
                 tv2.setText(pageTableRecords[i].getValidBit());
             }
-
+            tv2.setTextColor(Color.parseColor("#000000"));
             final TextView tv3 = new TextView(getContext());
             tv3.setLayoutParams(new
                     TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT,
                     TableRow.LayoutParams.WRAP_CONTENT));
-            tv3.setGravity(Gravity.LEFT);
+            tv3.setGravity(Gravity.CENTER_HORIZONTAL);
             tv3.setPadding(5, 15, 0, 15);
             if (i == -1) {
                 tv3.setText("Physical Page#");
@@ -608,12 +764,10 @@ public class GalleryFragment extends Fragment {
 //                        tv.setBackgroundColor(Color.parseColor("#f8f8f8"));
                 tv3.setText(pageTableRecords[i].getPhysicalPage());
             }
+            tv3.setTextColor(Color.parseColor("#000000"));
             //Table row
             final TableRow tr = new TableRow(getContext());
             tr.setId(i + 1);
-            TableLayout.LayoutParams trParams = new
-                    TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT,
-                    TableLayout.LayoutParams.WRAP_CONTENT);
             trParams.setMargins(leftRowMargin, topRowMargin, rightRowMargin,
                     bottomRowMargin);
             tr.setPadding(0, 0, 0, 0);
@@ -635,7 +789,7 @@ public class GalleryFragment extends Fragment {
                 TableRow.LayoutParams tvSepLay = new
                         TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT,
                         TableRow.LayoutParams.WRAP_CONTENT);
-                tvSepLay.span = 4;
+                tvSepLay.span = 3;
                 tvSep.setLayoutParams(tvSepLay);
                 tvSep.setBackgroundColor(Color.parseColor("#d9d9d9"));
                 tvSep.setHeight(1);
