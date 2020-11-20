@@ -14,4 +14,5 @@
     <string name="write_on_allocate">Write on allocate</string>
     <string name="write_around">Write around</string>
     <string name="write_back">Write back</string>
+    <string name="statistics_n_hit_rate_n_miss_rate">Statistics\n Hit Rate : %1$s\n Miss Rate : %2$s</string>
 </resources>

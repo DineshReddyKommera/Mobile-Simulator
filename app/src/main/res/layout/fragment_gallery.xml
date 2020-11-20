@@ -20,24 +20,14 @@
             app:layout_constraintTop_toBottomOf="@+id/m_edt_c_tlb_bits" />
 
         <TextView
-            android:id="@+id/m_cache_header"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="156dp"
-            android:layout_marginTop="16dp"
-            android:text=" Virtual Memory"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
             android:id="@+id/textView3"
             android:layout_width="185dp"
             android:layout_height="38dp"
             android:layout_marginStart="24dp"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="16dp"
             android:text=" Physical Page Size (power of 2) "
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/m_cache_header" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/textView4"
@@ -73,8 +63,8 @@
             android:id="@+id/m_edt_c_input_size"
             android:layout_width="100dp"
             android:layout_height="43dp"
-            android:layout_marginTop="48dp"
-            android:layout_marginEnd="48dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="52dp"
             android:ems="10"
             android:inputType="number"
             android:text="128"
@@ -202,10 +192,10 @@
             android:id="@+id/m_c_instruction_table"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="25dp"
             android:stretchColumns="*"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/m_btn_c_next_move">
+            app:layout_constraintTop_toBottomOf="@+id/textView2">
 
         </TableLayout>
 
@@ -214,7 +204,7 @@
             android:layout_width="410dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="1dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="32dp"
             android:stretchColumns="*"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/m_c_instruction_table"></TableLayout>
@@ -224,7 +214,7 @@
             android:layout_width="410dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="1dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="20dp"
             android:stretchColumns="*"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/m_c_tlb_table"></TableLayout>
@@ -238,5 +228,16 @@
             android:stretchColumns="*"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/m_c_phy_table"></TableLayout>
+
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="28dp"
+            android:layout_marginTop="21dp"
+            android:textStyle="bold"
+            android:text="@string/statistics_n_hit_rate_n_miss_rate"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/m_btn_c_next_move" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

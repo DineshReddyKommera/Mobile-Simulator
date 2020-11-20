@@ -20,6 +20,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
@@ -44,6 +45,7 @@ public class GalleryFragment extends Fragment {
     Button mBtnFastForward;
     EditText mEdtAddress;
     TextView mTxtInstUpdates;
+    TextView mHitMissRate;
     TableLayout mTlbTableLayout;
     TableLayout mInstructionTableLayout;
     TableLayout mPhysicalMemoryTableLayout,mPageTableLayout;
@@ -59,11 +61,15 @@ public class GalleryFragment extends Fragment {
 
     boolean tlbhit;
     boolean pagetablehit;
+    String hitmiss;
     TLBRecord tlbrecords[];
     PhysicalMemoryRecord physicalMemoryRecords[];
     PageTableRecord pageTableRecords[];
     int tlbCurrentCounter=0;
     int phyCurrentCounter=0;
+    int instructionCount=0;
+    int hitCount=0;
+    String hitrate="",missrate="";
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_gallery, container, false);
@@ -84,10 +90,14 @@ public class GalleryFragment extends Fragment {
         mBtnGetRandom = root.findViewById(R.id.m_c_random_btn);
         mBtnNextStep = root.findViewById(R.id.m_btn_c_next_move);
         mBtnFastForward = root.findViewById(R.id.m_btn_c_fast_forward);
+        mHitMissRate = root.findViewById(R.id.textView2);
         mBtnFastForward.setEnabled(false);
         mBtnNextStep.setEnabled(false);
         mBtnGetRandom.setEnabled(false);
         mBtnInstSubmit.setEnabled(false);
+
+        hitmiss = getString(R.string.statistics_n_hit_rate_n_miss_rate,"","");
+        mHitMissRate.setText(hitmiss);
         mBtnDesignSubmit.setOnClickListener(new View.OnClickListener(){
 
             @Override
@@ -130,7 +140,25 @@ public class GalleryFragment extends Fragment {
                     phyCurrentCounter=0;
                     mBtnGetRandom.setEnabled(true);
                     mBtnInstSubmit.setEnabled(true);
+                    hitmiss = getString(R.string.statistics_n_hit_rate_n_miss_rate,"","");
+                    mHitMissRate.setText(hitmiss);
+                    instructionCount=0;
+                    hitCount=0;
+                    //Remove previous Instruction Breakdown and disable buttons
+                    mInstructionTableLayout.removeAllViews();
+                    mEdtAddress.setText("");
+                    mBtnFastForward.setEnabled(false);
+                    mBtnNextStep.setEnabled(false);
                 }
+            }
+        });
+
+        //Refreshing fragment on reset button
+        mBtnReset.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //FragmentTransaction ft = getFragmentManager().beginTransaction();
+                //ft.detach(GalleryFragment.this).attach(GalleryFragment.this).commit();
             }
         });
 
@@ -157,7 +185,7 @@ public class GalleryFragment extends Fragment {
                 updateInstructionTable(currentPageBinary,currentOffsetBinary,binaryInstruction.length()-offsetBits,offsetBits);
                 mBtnFastForward.setEnabled(true);
                 mBtnNextStep.setEnabled(true);
-
+                instructionCount++;
             }
         });
 
@@ -193,6 +221,7 @@ public class GalleryFragment extends Fragment {
                 mTxtInstUpdates.setText("Information:" +
                         "\nValid page is found in the TLB. Frame and Offset is updated.");
                 stepNumber=6;
+                hitCount++;
             } else {
                 mTxtInstUpdates.setText("Information:" +
                         "\nThere is no valid page in TLB.");
@@ -210,6 +239,7 @@ public class GalleryFragment extends Fragment {
                 mTxtInstUpdates.setText("Information:" +
                         "\nValid page is found in the Page Table.");
                 stepNumber=6;
+                hitCount++;
             } else {
                 mTxtInstUpdates.setText("Information:" +
                         "\nPage requested is not found in Page Table.\n Data will be loaded from Secondary Memory.\n TLB, Page Table and Physical Memory is updated accordingly");
@@ -242,6 +272,10 @@ public class GalleryFragment extends Fragment {
             mTxtInstUpdates.setText("Information:" +
                     "\nThe cycle has been completed. Please submit another instructions");
             stepNumber++;
+            hitrate = Math.round(((float)hitCount/instructionCount)*100)+"%";
+            missrate = Math.round((1-((float)hitCount/instructionCount))*100)+"%";
+            hitmiss = getString(R.string.statistics_n_hit_rate_n_miss_rate,hitrate,missrate);
+            mHitMissRate.setText(hitmiss);
         }
     }
 
