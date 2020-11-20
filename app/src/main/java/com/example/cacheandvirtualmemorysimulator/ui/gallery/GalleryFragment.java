@@ -157,8 +157,14 @@ public class GalleryFragment extends Fragment {
         mBtnReset.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //FragmentTransaction ft = getFragmentManager().beginTransaction();
-                //ft.detach(GalleryFragment.this).attach(GalleryFragment.this).commit();
+                //If possible find better way of doing it
+                FragmentTransaction ft = getFragmentManager().beginTransaction();
+                ft.detach(GalleryFragment.this).attach(GalleryFragment.this).commit();
+                mEdtAddress.setText("");
+                mEdtOffsetBits.setText("2");
+                mEdtPhysicalPageSize.setText("128");
+                mEdtVirtualMemorySize.setText("2048");
+                mTLBEntries.setText("10");
             }
         });
 
@@ -289,14 +295,11 @@ public class GalleryFragment extends Fragment {
     }
 
     public boolean searchPageTable(){
-        Log.d(TAG, "searchPageTable: "+pageTableRecords);
-        Log.d(TAG, "searchPageTable:  pagetablehit "+pagetablehit);
+
         for(PageTableRecord pageTableRecord:pageTableRecords){
             if(pageTableRecord.getIndex().equalsIgnoreCase(Integer.toHexString(Integer.parseInt(currentPageBinary,2)))&&pageTableRecord.getValidBit().equals("1")){
                 return true;
             }
-            Log.d(TAG, "searchPageTable: pageTableRecord.getIndex()"+pageTableRecord.getIndex());
-            Log.d(TAG, "searchPageTable: Integer.toHexString(Integer.parseInt(currentPageBinary)))"+Integer.toHexString(Integer.parseInt(currentPageBinary,2)));
         }
         return false;
     }
