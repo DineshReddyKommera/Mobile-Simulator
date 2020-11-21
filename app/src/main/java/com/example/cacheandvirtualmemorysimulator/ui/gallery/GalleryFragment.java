@@ -149,6 +149,7 @@ public class GalleryFragment extends Fragment {
                     mEdtAddress.setText("");
                     mBtnFastForward.setEnabled(false);
                     mBtnNextStep.setEnabled(false);
+                    mBtnDesignSubmit.setEnabled(false);
                 }
             }
         });
@@ -187,6 +188,8 @@ public class GalleryFragment extends Fragment {
                 currentOffsetBinary = binaryInstruction.substring(binaryInstruction.length()-offsetBits,binaryInstruction.length());
                 mTxtInstUpdates.setText("Information:" +
                         "\nThe instruction has been converted from hex to binary and allocated to tag, index, and offset respectively");
+                mTxtInstUpdates.setTextColor(Color.parseColor("#000000"));
+                mTxtInstUpdates.setBackgroundColor(Color.parseColor("#BBBBFF"));
                 stepNumber = 2;
                 updateInstructionTable(currentPageBinary,currentOffsetBinary,binaryInstruction.length()-offsetBits,offsetBits);
                 mBtnFastForward.setEnabled(true);
@@ -219,6 +222,8 @@ public class GalleryFragment extends Fragment {
             //Search in TLB
             mTxtInstUpdates.setText("Information:" +
                     "\nIndex requested will be searched in whole TLB");
+            mTxtInstUpdates.setTextColor(Color.parseColor("#000000"));
+            mTxtInstUpdates.setBackgroundColor(Color.parseColor("#f8f807"));
             tlbhit = searchTLB();
             stepNumber++;
         } else if(stepNumber==3){
@@ -226,29 +231,39 @@ public class GalleryFragment extends Fragment {
             if(tlbhit){
                 mTxtInstUpdates.setText("Information:" +
                         "\nValid page is found in the TLB. Frame and Offset is updated.");
+                mTxtInstUpdates.setTextColor(Color.parseColor("#000000"));
+                mTxtInstUpdates.setBackgroundColor(Color.parseColor("#32CD32"));
                 stepNumber=6;
                 hitCount++;
             } else {
                 mTxtInstUpdates.setText("Information:" +
                         "\nThere is no valid page in TLB.");
+                mTxtInstUpdates.setTextColor(Color.parseColor("#000000"));
+                mTxtInstUpdates.setBackgroundColor(Color.parseColor("#F0CCCC"));
                 stepNumber++;
             }
         } else if(stepNumber==4){
             //Search in Page Table
             mTxtInstUpdates.setText("Information:" +
                     "\nPage is continue to be searched in Page Table.");
+            mTxtInstUpdates.setTextColor(Color.parseColor("#000000"));
+            mTxtInstUpdates.setBackgroundColor(Color.parseColor("#F0CCCC"));
             pagetablehit = searchPageTable();
             stepNumber++;
         } else if(stepNumber==5){
             //Update Status
             if(pagetablehit){
                 mTxtInstUpdates.setText("Information:" +
-                        "\nValid page is found in the Page Table.");
+                        "\nPage requested is found in Page Table. Let's fetch the data from Physical Memory. Page is updated in TLB as well.");
+                mTxtInstUpdates.setTextColor(Color.parseColor("#000000"));
+                mTxtInstUpdates.setBackgroundColor(Color.parseColor("#DC143C"));
                 stepNumber=6;
                 hitCount++;
             } else {
                 mTxtInstUpdates.setText("Information:" +
                         "\nPage requested is not found in Page Table.\n Data will be loaded from Secondary Memory.\n TLB, Page Table and Physical Memory is updated accordingly");
+                mTxtInstUpdates.setTextColor(Color.parseColor("#000000"));
+                mTxtInstUpdates.setBackgroundColor(Color.parseColor("#F0CCCC"));
                 stepNumber++;
             }
         } else if(stepNumber==6){
@@ -268,8 +283,6 @@ public class GalleryFragment extends Fragment {
                     phyCurrentCounter++;
                     updatePageTable(pageTableRecords);
                 } else {
-                    mTxtInstUpdates.setText("Information:" +
-                            "\nPage requested is found in Page Table. Let's fetch the data from Physical Memory. Page is updated in TLB as well.");
                     tlbrecords[tlbCurrentCounter%tlbEntries]= new TLBRecord(tlbCurrentCounter%tlbEntries,currentPageBinary,Integer.toString(tlbCurrentCounter%tlbEntries));
                     tlbCurrentCounter++;
                     updateTLBTable(tlbrecords);
@@ -277,6 +290,8 @@ public class GalleryFragment extends Fragment {
             }
             mTxtInstUpdates.setText("Information:" +
                     "\nThe cycle has been completed. Please submit another instructions");
+            mTxtInstUpdates.setTextColor(Color.parseColor("#000000"));
+            mTxtInstUpdates.setBackgroundColor(Color.parseColor("#FAFAFA"));
             stepNumber++;
             hitrate = Math.round(((float)hitCount/instructionCount)*100)+"%";
             missrate = Math.round((1-((float)hitCount/instructionCount))*100)+"%";

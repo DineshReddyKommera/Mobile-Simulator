@@ -26,6 +26,7 @@
             android:layout_marginStart="24dp"
             android:layout_marginTop="16dp"
             android:text=" Physical Page Size (power of 2) "
+            android:textColor="#000"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -36,6 +37,7 @@
             android:layout_marginStart="24dp"
             android:layout_marginTop="20dp"
             android:text=" Offset Bits"
+            android:textColor="#000"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textView3" />
 
@@ -46,6 +48,7 @@
             android:layout_marginStart="24dp"
             android:layout_marginTop="21dp"
             android:text=" Virtual Memory Size (power of 2) "
+            android:textColor="#000"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textView4" />
 
@@ -56,6 +59,7 @@
             android:layout_marginStart="24dp"
             android:layout_marginTop="28dp"
             android:text=" TLB Entries "
+            android:textColor="#000"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textView5" />
 
@@ -114,6 +118,7 @@
             android:layout_marginStart="28dp"
             android:layout_marginTop="20dp"
             android:text=" LOAD(in hex)#"
+            android:textColor="#000"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/m_btn_c_reset" />
 
@@ -160,11 +165,12 @@
 
         <TextView
             android:id="@+id/m_txt_c_instruction"
-            android:layout_width="383dp"
+            android:layout_width="350dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="24dp"
             android:layout_marginTop="16dp"
             android:text="Information:"
+            android:textColor="#000"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/m_cache_submit_button" />
 
@@ -237,6 +243,7 @@
             android:layout_marginTop="21dp"
             android:textStyle="bold"
             android:text="@string/statistics_n_hit_rate_n_miss_rate"
+            android:textColor="#000"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/m_btn_c_next_move" />
     </androidx.constraintlayout.widget.ConstraintLayout>
