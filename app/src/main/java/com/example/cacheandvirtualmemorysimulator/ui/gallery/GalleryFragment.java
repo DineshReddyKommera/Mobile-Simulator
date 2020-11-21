@@ -70,6 +70,7 @@ public class GalleryFragment extends Fragment {
     int instructionCount=0;
     int hitCount=0;
     String hitrate="",missrate="";
+    int tlbHitIndex =-1, pageTableHitIndex=-1;
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_gallery, container, false);
@@ -133,9 +134,9 @@ public class GalleryFragment extends Fragment {
                     for(int i=0;i<pageTableRecords.length;i++){
                         pageTableRecords[i] = new PageTableRecord(Integer.toHexString(i).toUpperCase(),"0","-");
                     }
-                    updateTLBTable(tlbrecords);
+                    updateTLBTable(tlbrecords,-1,false,false);
                     updatePhysicalMemory(physicalMemoryRecords);
-                    updatePageTable(pageTableRecords);
+                    updatePageTable(pageTableRecords,-1,false);
                     tlbCurrentCounter=0;
                     phyCurrentCounter=0;
                     mBtnGetRandom.setEnabled(true);
@@ -195,6 +196,7 @@ public class GalleryFragment extends Fragment {
                 mBtnFastForward.setEnabled(true);
                 mBtnNextStep.setEnabled(true);
                 instructionCount++;
+                updateTLBTable(tlbrecords,tlbCurrentCounter%tlbEntries, true,false);
             }
         });
 
@@ -235,6 +237,7 @@ public class GalleryFragment extends Fragment {
                 mTxtInstUpdates.setBackgroundColor(Color.parseColor("#32CD32"));
                 stepNumber=6;
                 hitCount++;
+                updateTLBTable(tlbrecords,tlbHitIndex,false,true);
             } else {
                 mTxtInstUpdates.setText("Information:" +
                         "\nThere is no valid page in TLB.");
@@ -256,9 +259,10 @@ public class GalleryFragment extends Fragment {
                 mTxtInstUpdates.setText("Information:" +
                         "\nPage requested is found in Page Table. Let's fetch the data from Physical Memory. Page is updated in TLB as well.");
                 mTxtInstUpdates.setTextColor(Color.parseColor("#000000"));
-                mTxtInstUpdates.setBackgroundColor(Color.parseColor("#DC143C"));
+                mTxtInstUpdates.setBackgroundColor(Color.parseColor("#32CD32"));
                 stepNumber=6;
                 hitCount++;
+                updatePageTable(pageTableRecords,pageTableHitIndex,true);
             } else {
                 mTxtInstUpdates.setText("Information:" +
                         "\nPage requested is not found in Page Table.\n Data will be loaded from Secondary Memory.\n TLB, Page Table and Physical Memory is updated accordingly");
@@ -269,11 +273,11 @@ public class GalleryFragment extends Fragment {
         } else if(stepNumber==6){
             //Store in Table if item not found
             if(!tlbhit){
+                tlbrecords[tlbCurrentCounter%tlbEntries]= new TLBRecord(tlbCurrentCounter%tlbEntries,currentPageBinary,Integer.toString(tlbCurrentCounter%tlbEntries));
+                tlbCurrentCounter++;
                 if(!pagetablehit){
                     //update tlb,physical memory and page table
-                    tlbrecords[tlbCurrentCounter%tlbEntries]= new TLBRecord(tlbCurrentCounter%tlbEntries,currentPageBinary,Integer.toString(tlbCurrentCounter%tlbEntries));
-                    tlbCurrentCounter++;
-                    updateTLBTable(tlbrecords);
+                    //updateTLBTable(tlbrecords,tlbCurrentCounter%tlbEntries,false,false);
                     int phyMemoryRecordsCount = (physicalPageSize)/(int)Math.pow(2,offsetBits);
                     physicalMemoryRecords[phyCurrentCounter%phyMemoryRecordsCount] = new PhysicalMemoryRecord(Integer.toHexString(phyCurrentCounter%phyMemoryRecordsCount),"Blocks "+currentPageBinary+" Words: 0 - "+ Integer.toString((int)Math.pow(2,offsetBits)-1));
                     updatePhysicalMemory(physicalMemoryRecords);
@@ -281,11 +285,7 @@ public class GalleryFragment extends Fragment {
                     int index = Integer.parseInt(currentPageBinary,2);
                     pageTableRecords[index]=new PageTableRecord(pageTableRecords[index].getIndex(),"1",Integer.toHexString(phyCurrentCounter%phyMemoryRecordsCount));
                     phyCurrentCounter++;
-                    updatePageTable(pageTableRecords);
-                } else {
-                    tlbrecords[tlbCurrentCounter%tlbEntries]= new TLBRecord(tlbCurrentCounter%tlbEntries,currentPageBinary,Integer.toString(tlbCurrentCounter%tlbEntries));
-                    tlbCurrentCounter++;
-                    updateTLBTable(tlbrecords);
+                    //updatePageTable(pageTableRecords);
                 }
             }
             mTxtInstUpdates.setText("Information:" +
@@ -297,25 +297,34 @@ public class GalleryFragment extends Fragment {
             missrate = Math.round((1-((float)hitCount/instructionCount))*100)+"%";
             hitmiss = getString(R.string.statistics_n_hit_rate_n_miss_rate,hitrate,missrate);
             mHitMissRate.setText(hitmiss);
+            updateTLBTable(tlbrecords,-1,false,false);
+            updatePageTable(pageTableRecords,-1,false);
         }
     }
 
     public boolean searchTLB(){
+        int count=0;
         for(TLBRecord tlbRecord:tlbrecords){
             if(tlbRecord.getVirtualPage().equalsIgnoreCase((currentPageBinary))){
+                tlbHitIndex=count;
                 return true;
             }
+            count++;
         }
+        count =-1;
         return false;
     }
 
     public boolean searchPageTable(){
-
+        int count =0;
         for(PageTableRecord pageTableRecord:pageTableRecords){
             if(pageTableRecord.getIndex().equalsIgnoreCase(Integer.toHexString(Integer.parseInt(currentPageBinary,2)))&&pageTableRecord.getValidBit().equals("1")){
+                pageTableHitIndex=count;
                 return true;
             }
+            count++;
         }
+        pageTableHitIndex=-1;
         return false;
     }
     @SuppressLint("ResourceType")
@@ -434,7 +443,7 @@ public class GalleryFragment extends Fragment {
         mInstructionTableLayout.addView(trSep, trParamsSep);
     }
 
-    public void updateTLBTable(TLBRecord tlbrecords[]){
+    public void updateTLBTable(TLBRecord tlbrecords[],int index, boolean highlight, boolean found){
         mTlbTableLayout.removeAllViews();
         TextView textSpacer = null;
         int leftRowMargin = 0;
@@ -543,10 +552,6 @@ public class GalleryFragment extends Fragment {
                 tv3.setBackgroundColor(Color.parseColor("#f0f0f0"));
                 tv3.setTextColor(Color.parseColor("#000000"));
             } else {
-//                    if(highLightRecord==i)
-//                        tv.setBackgroundColor(Color.parseColor("#ffff00"));
-//                    else
-//                        tv.setBackgroundColor(Color.parseColor("#f8f8f8"));
                 tv3.setText(tlbrecords[i].getPhysicalPage());
                 tv3.setTextColor(Color.parseColor("#000000"));
             }
@@ -561,6 +566,12 @@ public class GalleryFragment extends Fragment {
             tr.addView(tv);
             tr.addView(tv2);
             tr.addView(tv3);
+            if(index==i&&highlight)
+              tr.setBackgroundColor(Color.parseColor("#0080ff"));
+            else if(found && index==i)
+                tr.setBackgroundColor(Color.parseColor("#32CD32"));
+            else
+                tr.setBackgroundColor(Color.parseColor("#f8f8f8"));
             mTlbTableLayout.addView(tr, trParams);
             if (i > -1) {
                 // add separator row
@@ -705,7 +716,7 @@ public class GalleryFragment extends Fragment {
 
     }
 
-    public void updatePageTable(PageTableRecord pageTableRecords[]){
+    public void updatePageTable(PageTableRecord pageTableRecords[], int index, boolean highlight){
         mPageTableLayout.removeAllViews();
         TextView textSpacer = null;
         int leftRowMargin = 0;
@@ -827,6 +838,10 @@ public class GalleryFragment extends Fragment {
             tr.addView(tv);
             tr.addView(tv2);
             tr.addView(tv3);
+            if(index==i&&highlight)
+                tr.setBackgroundColor(Color.parseColor("#32CD32"));
+            else
+                tr.setBackgroundColor(Color.parseColor("#f8f8f8"));
             mPageTableLayout.addView(tr, trParams);
             if (i > -1) {
                 // add separator row
