@@ -164,6 +164,9 @@ public class HomeFragment extends Fragment {
                 mEdtOffsetBits.setText("2");
                 mEdtCacheSize.setText("16");
                 mEdtMemorySize.setText("2048");
+                totalHitInstructions=0;
+                totalInstructions=0;
+                hitMiss = "Statistics\n Hit Rate : \n Miss Rate :";
             }
         });
 
