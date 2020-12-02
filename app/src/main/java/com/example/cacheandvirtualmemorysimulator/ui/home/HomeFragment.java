@@ -12,9 +12,11 @@ import android.widget.*;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.example.cacheandvirtualmemorysimulator.POJO.CacheRecord;
 import com.example.cacheandvirtualmemorysimulator.R;
+import com.example.cacheandvirtualmemorysimulator.ui.gallery.GalleryFragment;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -43,6 +45,7 @@ public class HomeFragment extends Fragment {
     TableLayout mCacheTableLayout;
     TableLayout mMemoryBlockLayout;
     TableLayout mInstructionTableLayout;
+    TextView mHitMissRate;
     int cacheSize;
     int memorySize;
     int offsetBits;
@@ -62,7 +65,9 @@ public class HomeFragment extends Fragment {
     int stepsCount=0;
     int totalInstructions = 0;
     int totalHitInstructions = 0;
-
+    String hitMiss = "Statistics\n Hit Rate : \n Miss Rate : \n";
+    String hitRate="";
+    String missRate;
     CacheRecord[] cacheTable;
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -101,7 +106,8 @@ public class HomeFragment extends Fragment {
         mBtnFastForward.setEnabled(false);
         mTxtInstUpdates = root.findViewById(R.id.m_txt_c_instruction);
         mTxtInstUpdates.setMovementMethod(new ScrollingMovementMethod());
-
+        mHitMissRate = root.findViewById(R.id.m_txt_hit_miss);
+        mHitMissRate.setText(hitMiss);
         mInstructionTableLayout = root.findViewById(R.id.m_c_instruction_table);
 
         mCacheTableLayout = root.findViewById(R.id.m_c_cache_table);
@@ -147,6 +153,20 @@ public class HomeFragment extends Fragment {
             }
         });
 
+        //Refreshing fragment on reset button
+        mBtnReset.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //If possible find better way of doing it
+                FragmentTransaction ft = getFragmentManager().beginTransaction();
+                ft.detach(HomeFragment.this).attach(HomeFragment.this).commit();
+                mEdtAddress.setText("");
+                mEdtOffsetBits.setText("2");
+                mEdtCacheSize.setText("16");
+                mEdtMemorySize.setText("2048");
+            }
+        });
+
         mBtnGetRandom.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -158,6 +178,7 @@ public class HomeFragment extends Fragment {
         mBtnInstSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                addressInstruction=Integer.parseInt(mEdtAddress.getText().toString(),16);
                 String binaryInstruction = String
                         .format("%"+ memoryBitSize+"s",Integer.toBinaryString(addressInstruction))
                         .replace(' ','0');
@@ -216,6 +237,7 @@ public class HomeFragment extends Fragment {
 
                     } else if(stepsCount==4){
                         if(cacheTable[currentIndexDecimal].getTag().equals(currentTagBinary)){
+                            totalHitInstructions++;
                             if(mRadWriteBack.isChecked()) {
                                 mTxtInstUpdates.append("Highlighted cache is updated with dirty bit = 1");
                                 cacheTable[currentIndexDecimal].setDirtyBit(true);
@@ -232,11 +254,16 @@ public class HomeFragment extends Fragment {
                                 mTxtInstUpdates.append(" Only memory block is updated based on Write Around Policy.");
                             }
                         }
-                        stepsCount = 6;
+                        stepsCount++;
                     } else if(stepsCount==5){
                         stepsCount=0;
                         mBtnNextStep.setEnabled(false);
                         mBtnFastForward.setEnabled(false);
+                        hitRate = Math.round(((float)totalHitInstructions/totalInstructions)*100)+"%";
+                        missRate = Math.round((1-((float)totalHitInstructions/totalInstructions))*100)+"%";
+                        hitMiss = "Statistics\n Hit Rate : "+hitRate+"\n Miss Rate :"+missRate+" \n";
+                        mHitMissRate.setText(hitMiss);
+                        mTxtInstUpdates.append("The cycle has been completed. Please submit another instructions");
                     }
                     updateCacheTable(cacheTable,currentIndexDecimal, false, false, false);
                 }else{
@@ -290,6 +317,10 @@ public class HomeFragment extends Fragment {
                         updateInstructionBreakdown(currentTagBinary,currentIndexBinary,currentOffsetBinary,false,false);
                         mBtnNextStep.setEnabled(false);
                         mBtnFastForward.setEnabled(false);
+                        hitRate = Math.round(((float)totalHitInstructions/totalInstructions)*100)+"%";
+                        missRate = Math.round((1-((float)totalHitInstructions/totalInstructions))*100)+"%";
+                        hitMiss = "Statistics\n Hit Rate : "+hitRate+"\n Miss Rate :"+missRate+"\n";
+                        mHitMissRate.setText(hitMiss);
                     }
                 }
             }
